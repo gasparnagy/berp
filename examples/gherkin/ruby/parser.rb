@@ -28,24 +28,24 @@
 :rule__MultiLineArgument  # #MultiLineArgument
 :rule__TableRow  # #TableRow
 :rule__Other  # #Other
-:rule_Feature_File  # =Feature_File! := Feature_Def Background? Scenario_Base*
+:rule_Feature_File  # Feature_File! := Feature_Def Background? Scenario_Base*
 :rule_Feature_Def  # Feature_Def! := #TagLine* #Feature Feature_Description
 :rule_Background  # Background! := #Background Background_Description Scenario_Step*
 :rule_Scenario_Base  # Scenario_Base! := #TagLine* Scenario_Base_Body
-:rule_Scenario_Base_Body  # Scenario_Base_Body := (Scenario | ScenarioOutline)
+:rule_Scenario_Base_Body  # Scenario_Base_Body := __alt0
 :rule_Scenario  # Scenario! := #Scenario Scenario_Description Scenario_Step*
 :rule_ScenarioOutline  # ScenarioOutline! := #ScenarioOutline ScenarioOutline_Description ScenarioOutline_Step* Examples+
-:rule_Examples  # Examples! := #TagLine* #Examples Examples_Description Examples_Table
+:rule_Examples  # Examples! := #TagLine[#Empty|#Comment|#TagLine-&gt;#Examples]* #Examples Examples_Description Examples_Table
 :rule_Examples_Table  # Examples_Table! := #TableRow+
 :rule_Scenario_Step  # Scenario_Step := Step
 :rule_ScenarioOutline_Step  # ScenarioOutline_Step := Step
 :rule_Step  # Step! := #Step Step_Arg?
-:rule_Step_Arg  # Step_Arg := (Table_And_Multiline_Arg | Multiline_And_Table_Arg)
+:rule_Step_Arg  # Step_Arg := __alt1
 :rule_Table_And_Multiline_Arg  # Table_And_Multiline_Arg := Table_Arg Multiline_Arg?
 :rule_Multiline_And_Table_Arg  # Multiline_And_Table_Arg := Multiline_Arg Table_Arg?
 :rule_Table_Arg  # Table_Arg! := #TableRow+
 :rule_Multiline_Arg  # Multiline_Arg! := #MultiLineArgument Multiline_Arg_Line* #MultiLineArgument
-:rule_Multiline_Arg_Line  # Multiline_Arg_Line := (#Empty | #Other)
+:rule_Multiline_Arg_Line  # Multiline_Arg_Line := __alt2
 :rule_Feature_Description  # Feature_Description := Description_Helper
 :rule_Background_Description  # Background_Description := Description_Helper
 :rule_Scenario_Description  # Scenario_Description := Description_Helper
@@ -53,7 +53,11 @@
 :rule_Examples_Description  # Examples_Description := Description_Helper
 :rule_Description_Helper  # Description_Helper := Description? #Comment*
 :rule_Description  # Description! := Description_Line+
-:rule_Description_Line  # Description_Line := (#Empty | #Other)
+:rule_Description_Line  # Description_Line := __alt3
+:rule___alt0  # __alt0 := (Scenario | ScenarioOutline)
+:rule___alt1  # __alt1 := (Table_And_Multiline_Arg | Multiline_And_Table_Arg)
+:rule___alt2  # __alt2 := (#Empty | #Other)
+:rule___alt3  # __alt3 := (#Empty | #Other)
 
 class ParserContext
 	attr_accessor :tokenScanner
@@ -308,7 +312,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:0>Feature_Def:2>Feature_Description:0>Description_Helper:0>Description:0>Description_Line:0>#Empty:0
+		# Feature_File:0>Feature_Def:2>Feature_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		def matchTokenAt_3(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -484,7 +488,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:1>Background:1>Background_Description:0>Description_Helper:0>Description:0>Description_Line:0>#Empty:0
+		# Feature_File:1>Background:1>Background_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		def matchTokenAt_6(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -668,7 +672,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0
+		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0
 		def matchTokenAt_9(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -742,7 +746,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0
+		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0
 		def matchTokenAt_10(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -764,7 +768,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0
+		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0
 		def matchTokenAt_11(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -860,7 +864,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:0>#Scenario:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:0>#Scenario:0
 		def matchTokenAt_13(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -923,7 +927,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:1>Scenario_Description:0>Description_Helper:0>Description:0>Description_Line:0>#Empty:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:1>Scenario_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		def matchTokenAt_14(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -990,7 +994,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:1>Scenario_Description:0>Description_Helper:1>#Comment:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:1>Scenario_Description:0>Description_Helper:1>#Comment:0
 		def matchTokenAt_15(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -1046,7 +1050,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:2>Scenario_Step:0>Step:0>#Step:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:0>#Step:0
 		def matchTokenAt_16(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -1119,7 +1123,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0
 		def matchTokenAt_17(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -1197,7 +1201,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0
 		def matchTokenAt_18(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -1219,7 +1223,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0
 		def matchTokenAt_19(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -1285,7 +1289,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:0>#ScenarioOutline:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:0>#ScenarioOutline:0
 		def matchTokenAt_20(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -1327,7 +1331,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:0>Description:0>Description_Line:0>#Empty:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		def matchTokenAt_21(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -1371,7 +1375,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:1>#Comment:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:1>#Comment:0
 		def matchTokenAt_22(token, context)
 
 			if (context.tokenMatcher.match_Comment(token))
@@ -1406,7 +1410,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:0>#Step:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:0>#Step:0
 		def matchTokenAt_23(token, context)
 
 			if (context.tokenMatcher.match_TableRow(token))
@@ -1456,7 +1460,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0
 		def matchTokenAt_24(token, context)
 
 			if (context.tokenMatcher.match_TableRow(token))
@@ -1509,7 +1513,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0
 		def matchTokenAt_25(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -1531,7 +1535,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0
 		def matchTokenAt_26(token, context)
 
 			if (context.tokenMatcher.match_Step(token))
@@ -1572,7 +1576,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:3>Examples:0>#TagLine:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:0>#TagLine:0
 		def matchTokenAt_27(token, context)
 
 			if (context.tokenMatcher.match_TagLine(token))
@@ -1599,7 +1603,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:3>Examples:1>#Examples:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:1>#Examples:0
 		def matchTokenAt_28(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -1629,7 +1633,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:0>Description:0>Description_Line:0>#Empty:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		def matchTokenAt_29(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -1659,7 +1663,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:1>#Comment:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:1>#Comment:0
 		def matchTokenAt_30(token, context)
 
 			if (context.tokenMatcher.match_Comment(token))
@@ -1682,7 +1686,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:3>Examples:3>Examples_Table:0>#TableRow:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:3>Examples_Table:0>#TableRow:0
 		def matchTokenAt_31(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -1763,7 +1767,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0
 		def matchTokenAt_33(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -1785,7 +1789,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0
 		def matchTokenAt_34(token, context)
 
 			if (context.tokenMatcher.match_TableRow(token))
@@ -1833,7 +1837,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0
 		def matchTokenAt_35(token, context)
 
 			if (context.tokenMatcher.match_TableRow(token))
@@ -1879,7 +1883,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0
 		def matchTokenAt_36(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -1901,7 +1905,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0
 		def matchTokenAt_37(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -1974,7 +1978,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0
+		# Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0
 		def matchTokenAt_38(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -2045,7 +2049,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0
+		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0
 		def matchTokenAt_39(token, context)
 
 			if (context.tokenMatcher.match_Empty(token))
@@ -2067,7 +2071,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0
+		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0
 		def matchTokenAt_40(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))
@@ -2136,7 +2140,7 @@ class Parser
 		end
 		
 		
-		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0
+		# Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0
 		def matchTokenAt_41(token, context)
 
 			if (context.tokenMatcher.match_EOF(token))

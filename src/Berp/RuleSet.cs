@@ -64,6 +64,18 @@ namespace Berp
         {
             this.settings = settings ?? new Dictionary<string, object>();
 
+            AddTokens();
+            AddIgnoredContent();
+        }
+
+        private void AddIgnoredContent()
+        {
+            SetIgnoredContent(GetSetting("IgnoredTokens", new object[0])
+                .Select(token => new TokenType(token.ToString().Substring(1))).ToArray());
+        }
+
+        private void AddTokens()
+        {
             Add(new TokenRule(TokenType.EOF));
             foreach (var token in GetSetting("Tokens", new object[0]))
             {
