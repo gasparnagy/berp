@@ -1,0 +1,166 @@
+﻿@using Berp;
+@helper CallProduction(ProductionRule production)
+{
+	switch(production.Type)
+	{
+		case ProductionRuleType.Start:
+				@:context.Builder.Push(RuleType.@production.RuleName);
+			break;
+		case ProductionRuleType.End:
+				@:context.Builder.Pop(RuleType.@production.RuleName);
+			break;
+		case ProductionRuleType.Process:
+				@:context.Builder.Build(token);
+			break;
+	}
+}
+using System;
+using System.Collections.Generic;
+namespace @Model.Namespace
+{
+	public enum TokenType
+	{
+		None,
+		@foreach(var rule in Model.RuleSet.TokenRules)
+		{
+			@rule.Name.Replace("#", "")@:,
+		}
+	}
+
+	public enum RuleType
+	{
+		None,
+		@foreach(var rule in Model.RuleSet)
+		{
+			@rule.Name.Replace("#", "_")@:, // @rule
+		}
+	}
+
+    public class @Model.ParserClassName
+    {
+		class ParserContext
+		{
+			public TokenScanner TokenScanner { get; set; }
+			public ASTBuilder Builder { get; set; }
+			public Queue<Token> TokenQueue { get; set; }
+		}
+
+        public object Parse(TokenScanner tokenScanner)
+		{
+			var context = new ParserContext
+			{
+				TokenScanner = tokenScanner,
+				Builder = new ASTBuilder(),
+				TokenQueue = new Queue<Token>()
+			};
+
+			context.Builder.Push(RuleType.@Model.RuleSet.StartRule.Name);
+            int state = 0;
+            Token token;
+            do
+			{
+				token = ReadToken(context);
+				state = MatchToken(state, token, context);
+            } while(!token.IsEOF);
+
+			if (state != @Model.EndState.Id)
+			{
+				throw new Exception("parsing error: end of file expected");
+			}
+
+			context.Builder.Pop(RuleType.@Model.RuleSet.StartRule.Name);
+			return context.Builder.RootNode;
+		}
+
+		Token ReadToken(ParserContext context)
+		{
+			return context.TokenQueue.Count > 0 ? context.TokenQueue.Dequeue() : context.TokenScanner.Read();
+		}
+
+		int MatchToken(int state, Token token, ParserContext context)
+		{
+			int newState;
+			switch(state)
+			{
+			@foreach(var state in Model.States.Values.Where(s => !s.IsEndState))
+			{
+				@:case @state.Id:
+					@:newState = MatchTokenAt_@(state.Id)(token, context);
+					@:break;
+			}
+				default:
+					throw new NotImplementedException();
+			}
+			return newState;
+		}
+
+	@foreach(var state in Model.States.Values.Where(s => !s.IsEndState))
+	{
+		<text>
+		// @Raw(state.Comment)
+		int MatchTokenAt_@(state.Id)(Token token, ParserContext context)
+		{
+			@foreach(var transition in state.Transitions)
+			{
+			@:if (context.TokenScanner.Match_@(transition.TokenType)(token))
+			@:{
+				if (transition.LookAheadHint != null)
+				{
+				@:if (LookAhead_@(transition.LookAheadHint.Id)(context, token))
+				@:{
+				}
+				foreach(var production in transition.Productions)
+				{
+					@CallProduction(production)
+				}
+				@:return @transition.TargetState;
+				if (transition.LookAheadHint != null)
+				{
+				@:}
+				}
+			@:}
+			}
+			throw new Exception("parsing error at state @(state.Id): @Raw(state.Comment)");
+		}
+		</text>
+	}
+
+	@foreach(var lookAheadHint in Model.RuleSet.LookAheadHints)
+	{
+		<text>
+		bool LookAhead_@(lookAheadHint.Id)(ParserContext context, Token currentToken)
+		{
+			currentToken.Detach();
+            Token token;
+			var queue = new Queue<Token>();
+			bool match = false;
+		    do
+		    {
+		        token = ReadToken(context);
+				token.Detach();
+		        queue.Enqueue(token);
+
+		        if (false
+				@foreach(var tokenType in lookAheadHint.ExpectedTokens)
+				{
+					@:|| context.TokenScanner.Match_@(tokenType)(token)
+				}
+				)
+		        {
+					match = true;
+					break;
+		        }
+		    } while (false
+			@foreach(var tokenType in lookAheadHint.Skip)
+			{
+				@:|| context.TokenScanner.Match_@(tokenType)(token)
+			}
+			);
+			foreach(var t in queue)
+				context.TokenQueue.Enqueue(t);
+			return match;
+		}
+		</text>
+	}
+	}
+}

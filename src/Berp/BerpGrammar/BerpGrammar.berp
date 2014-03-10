@@ -1,0 +1,24 @@
+﻿[
+	Tokens -> #Rule,#Token,#EOL,#Production,#Definition,#LParen,#RParen,#LBracket,#RBracket,#Arrow,#AlternateOp,#AnyMultiplier,#OneOrMoreMultiplier,#OneOrZeroMultiplier,#Comma,#Number
+	ClassName -> Parser
+	Namespace -> Berp.BerpGrammar
+]
+
+
+Grammar! := Settings? RuleDefinition+
+RuleDefinition! := #Rule #Production? #Definition RuleDefinitionElement+ #EOL
+RuleDefinitionElement! := RuleDefinitionElement_Core LookAhead? RuleDefinitionElement_Multiplier?
+RuleDefinitionElement_Core := (AlternateElement | TokenElement | RuleElement | GroupElement)
+RuleDefinitionElement_Multiplier := (#AnyMultiplier | #OneOrMoreMultiplier | #OneOrZeroMultiplier)
+AlternateElement! := #LParen[#Token|#Rule->#AlternateOp] AlternateElementBody #RParen
+AlternateElementBody := AlternateElementItem (#AlternateOp AlternateElementItem)*
+AlternateElementItem := (#Rule | #Token)
+GroupElement! := #LParen RuleDefinitionElement+ #RParen
+TokenElement := #Token
+RuleElement := #Rule
+LookAhead! := #LBracket LookAheadTokenList? #Arrow LookAheadTokenList #RBracket
+LookAheadTokenList! := #Token (#AlternateOp #Token)*
+
+Settings! := (#LBracket #EOL) Parameter* (#RBracket #EOL)
+Parameter! := #Rule #Arrow ParameterValue (#Comma ParameterValue)* #EOL
+ParameterValue := (#Rule | #Token)
