@@ -259,6 +259,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 2;
 			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 0;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 0;
+			}
 			throw new Exception("parsing error at state 0: Start");
 		}
 		
@@ -275,6 +285,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 			{
 				context.Builder.Build(token);
 				return 2;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 1;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 1;
 			}
 			throw new Exception("parsing error at state 1: Feature_File:0>Feature_Def:0>#TagLine:0");
 		}
@@ -448,6 +468,11 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 20;
 			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 4;
+			}
 			throw new Exception("parsing error at state 4: Feature_File:0>Feature_Def:2>Feature_Description:0>Description_Helper:1>#Comment:0");
 		}
 		
@@ -617,6 +642,11 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 20;
 			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 7;
+			}
 			throw new Exception("parsing error at state 7: Feature_File:1>Background:1>Background_Description:0>Description_Helper:1>#Comment:0");
 		}
 		
@@ -675,6 +705,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.ScenarioOutline);
 				context.Builder.Build(token);
 				return 20;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 8;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 8;
 			}
 			throw new Exception("parsing error at state 8: Feature_File:1>Background:2>Scenario_Step:0>Step:0>#Step:0");
 		}
@@ -739,6 +779,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.ScenarioOutline);
 				context.Builder.Build(token);
 				return 20;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 9;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 9;
 			}
 			throw new Exception("parsing error at state 9: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0");
 		}
@@ -814,6 +864,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 20;
 			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 11;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 11;
+			}
 			throw new Exception("parsing error at state 11: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0");
 		}
 		
@@ -837,6 +897,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.ScenarioOutline);
 				context.Builder.Build(token);
 				return 20;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 12;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 12;
 			}
 			throw new Exception("parsing error at state 12: Feature_File:2>Scenario_Base:0>#TagLine:0");
 		}
@@ -1019,6 +1089,11 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 20;
 			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 15;
+			}
 			throw new Exception("parsing error at state 15: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:1>Scenario_Description:0>Description_Helper:1>#Comment:0");
 		}
 		
@@ -1081,6 +1156,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.ScenarioOutline);
 				context.Builder.Build(token);
 				return 20;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 16;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 16;
 			}
 			throw new Exception("parsing error at state 16: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:0>#Step:0");
 		}
@@ -1149,6 +1234,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.ScenarioOutline);
 				context.Builder.Build(token);
 				return 20;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 17;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 17;
 			}
 			throw new Exception("parsing error at state 17: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0");
 		}
@@ -1227,6 +1322,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.ScenarioOutline);
 				context.Builder.Build(token);
 				return 20;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 19;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 19;
 			}
 			throw new Exception("parsing error at state 19: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0");
 		}
@@ -1344,6 +1449,11 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 28;
 			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 22;
+			}
 			throw new Exception("parsing error at state 22: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:1>#Comment:0");
 		}
 		
@@ -1383,6 +1493,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.Examples);
 				context.Builder.Build(token);
 				return 28;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 23;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 23;
 			}
 			throw new Exception("parsing error at state 23: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:0>#Step:0");
 		}
@@ -1426,6 +1546,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.Examples);
 				context.Builder.Build(token);
 				return 28;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 24;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 24;
 			}
 			throw new Exception("parsing error at state 24: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0");
 		}
@@ -1480,6 +1610,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 28;
 			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 26;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 26;
+			}
 			throw new Exception("parsing error at state 26: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0");
 		}
 		
@@ -1496,6 +1636,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 			{
 				context.Builder.Build(token);
 				return 28;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 27;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 27;
 			}
 			throw new Exception("parsing error at state 27: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:0>#TagLine:0");
 		}
@@ -1575,6 +1725,11 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 31;
 			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 30;
+			}
 			throw new Exception("parsing error at state 30: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:1>#Comment:0");
 		}
 		
@@ -1647,6 +1802,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 20;
 			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 31;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 31;
+			}
 			throw new Exception("parsing error at state 31: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:3>Examples_Table:0>#TableRow:0");
 		}
 		
@@ -1707,6 +1872,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 28;
 			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 34;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 34;
+			}
 			throw new Exception("parsing error at state 34: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0");
 		}
 		
@@ -1742,6 +1917,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.Examples);
 				context.Builder.Build(token);
 				return 28;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 35;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 35;
 			}
 			throw new Exception("parsing error at state 35: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0");
 		}
@@ -1828,6 +2013,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 20;
 			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 37;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 37;
+			}
 			throw new Exception("parsing error at state 37: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0");
 		}
 		
@@ -1888,6 +2083,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.ScenarioOutline);
 				context.Builder.Build(token);
 				return 20;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 38;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 38;
 			}
 			throw new Exception("parsing error at state 38: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0");
 		}
@@ -1970,6 +2175,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 20;
 			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 40;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 40;
+			}
 			throw new Exception("parsing error at state 40: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0");
 		}
 		
@@ -2026,6 +2241,16 @@ __alt3, // __alt3 := (#Empty | #Other)
 				context.Builder.Push(RuleType.ScenarioOutline);
 				context.Builder.Build(token);
 				return 20;
+			}
+			if (context.TokenScanner.Match_Comment(token))
+			{
+				context.Builder.Build(token);
+				return 41;
+			}
+			if (context.TokenScanner.Match_Empty(token))
+			{
+				context.Builder.Build(token);
+				return 41;
 			}
 			throw new Exception("parsing error at state 41: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0");
 		}
