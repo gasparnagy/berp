@@ -40,7 +40,7 @@ Feature_File, // Feature_File! := Feature_Def Background? Scenario_Base*
 Feature_Def, // Feature_Def! := #TagLine* #Feature Feature_Description
 Background, // Background! := #Background Background_Description Scenario_Step*
 Scenario_Base, // Scenario_Base! := #TagLine* Scenario_Base_Body
-Scenario_Base_Body, // Scenario_Base_Body := __alt0
+Scenario_Base_Body, // Scenario_Base_Body := (Scenario | ScenarioOutline)
 Scenario, // Scenario! := #Scenario Scenario_Description Scenario_Step*
 ScenarioOutline, // ScenarioOutline! := #ScenarioOutline ScenarioOutline_Description ScenarioOutline_Step* Examples+
 Examples, // Examples! := #TagLine[#Empty|#Comment|#TagLine-&gt;#Examples]* #Examples Examples_Description Examples_Table
@@ -48,12 +48,12 @@ Examples_Table, // Examples_Table! := #TableRow+
 Scenario_Step, // Scenario_Step := Step
 ScenarioOutline_Step, // ScenarioOutline_Step := Step
 Step, // Step! := #Step Step_Arg?
-Step_Arg, // Step_Arg := __alt1
+Step_Arg, // Step_Arg := (Table_And_Multiline_Arg | Multiline_And_Table_Arg)
 Table_And_Multiline_Arg, // Table_And_Multiline_Arg := Table_Arg Multiline_Arg?
 Multiline_And_Table_Arg, // Multiline_And_Table_Arg := Multiline_Arg Table_Arg?
 Table_Arg, // Table_Arg! := #TableRow+
 Multiline_Arg, // Multiline_Arg! := #MultiLineArgument Multiline_Arg_Line* #MultiLineArgument
-Multiline_Arg_Line, // Multiline_Arg_Line := __alt2
+Multiline_Arg_Line, // Multiline_Arg_Line := (#Empty | #Other)
 Feature_Description, // Feature_Description := Description_Helper
 Background_Description, // Background_Description := Description_Helper
 Scenario_Description, // Scenario_Description := Description_Helper
@@ -61,11 +61,7 @@ ScenarioOutline_Description, // ScenarioOutline_Description := Description_Helpe
 Examples_Description, // Examples_Description := Description_Helper
 Description_Helper, // Description_Helper := Description? #Comment*
 Description, // Description! := Description_Line+
-Description_Line, // Description_Line := __alt3
-__alt0, // __alt0 := (Scenario | ScenarioOutline)
-__alt1, // __alt1 := (Table_And_Multiline_Arg | Multiline_And_Table_Arg)
-__alt2, // __alt2 := (#Empty | #Other)
-__alt3, // __alt3 := (#Empty | #Other)
+Description_Line, // Description_Line := (#Empty | #Other)
 	}
 
     public class Parser

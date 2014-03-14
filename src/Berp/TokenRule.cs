@@ -27,7 +27,7 @@ namespace Berp
             return Name;
         }
 
-        public override string ToString()
+        public override string ToString(bool embedNonProductionRules)
         {
             return Name;
         }

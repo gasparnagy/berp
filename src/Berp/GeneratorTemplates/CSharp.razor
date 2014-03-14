@@ -30,9 +30,9 @@ namespace @Model.Namespace
 	public enum RuleType
 	{
 		None,
-		@foreach(var rule in Model.RuleSet)
+		@foreach(var rule in Model.RuleSet.Where(r => !r.TempRule))
 		{
-			@rule.Name.Replace("#", "_")@:, // @rule
+			@rule.Name.Replace("#", "_")@:, // @rule.ToString(true)
 		}
 	}
 
