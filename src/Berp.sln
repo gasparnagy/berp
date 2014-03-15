@@ -1,9 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Berp", "Berp\Berp.csproj", "{98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Berp.Specs", "Berp.Specs\Berp.Specs.csproj", "{53051ECA-ABB9-4234-BD66-D4D5A37820ED}"
+	ProjectSection(ProjectDependencies) = postProject
+		{98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616} = {98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4B068529-C216-44A4-91CC-CAB26DD38E63}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +25,10 @@ Global
 		{98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53051ECA-ABB9-4234-BD66-D4D5A37820ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53051ECA-ABB9-4234-BD66-D4D5A37820ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53051ECA-ABB9-4234-BD66-D4D5A37820ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53051ECA-ABB9-4234-BD66-D4D5A37820ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
