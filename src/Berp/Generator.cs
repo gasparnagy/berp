@@ -30,6 +30,11 @@ namespace Berp
             };
 
             string result = Razor.Parse(template, model);
+            if (File.Exists(outputPath) && File.ReadAllText(outputPath).Equals(result))
+            {
+                Console.WriteLine("Result up-to-date");
+                return;
+            }
             File.WriteAllText(outputPath, result, Encoding.UTF8);
         }
     }
