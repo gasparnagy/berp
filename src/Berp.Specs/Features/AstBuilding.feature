@@ -10,17 +10,17 @@ Scenario: Build a simple AST (wihtout repeating elements)
 	And the created AST should be
 		"""
 		[Grammar
-		[RuleDefinition
- 				Rule:Grammar
- 				Definition:
- 				[RuleDefinitionElement
- 					Rule:RuleA
- 				]
- 				[RuleDefinitionElement
- 					Rule:RuleB
- 				]
- 				EOL:
- 			]
- 			EOF:
+			[RuleDefinition
+				#Rule:'Grammar'
+				#Definition:':='
+				[RuleDefinitionElement
+					#Rule:'RuleA'
+				]
+				[RuleDefinitionElement
+					#Rule:'RuleB'
+				]
+				#EOL
+			]
+			#EOF
 		]
 		"""

@@ -21,7 +21,9 @@ namespace Berp.BerpGrammar
 
         public override string ToString()
         {
-            return string.Format("{0}:{1}", TokenType, Text);
+            if (string.IsNullOrEmpty(Text))
+                return string.Format("#{0}", TokenType);
+            return string.Format("#{0}:'{1}'", TokenType, Text);
         }
     }
 }

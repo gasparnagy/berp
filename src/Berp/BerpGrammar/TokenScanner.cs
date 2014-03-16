@@ -35,40 +35,40 @@ namespace Berp.BerpGrammar
                     switch (part)
                     {
                         case ",":
-                            yield return new Token(TokenType.Comma);
+                            yield return new Token(TokenType.Comma) { Text = part };
                             break;
                         case ":=":
-                            yield return new Token(TokenType.Definition);
+                            yield return new Token(TokenType.Definition) { Text = part };
                             break;
                         case "(":
-                            yield return new Token(TokenType.LParen);
+                            yield return new Token(TokenType.LParen) { Text = part };
                             break;
                         case ")":
-                            yield return new Token(TokenType.RParen);
+                            yield return new Token(TokenType.RParen) { Text = part };
                             break;
                         case "|":
-                            yield return new Token(TokenType.AlternateOp);
+                            yield return new Token(TokenType.AlternateOp) { Text = part };
                             break;
                         case "*":
-                            yield return new Token(TokenType.AnyMultiplier);
+                            yield return new Token(TokenType.AnyMultiplier) { Text = part };
                             break;
                         case "+":
-                            yield return new Token(TokenType.OneOrMoreMultiplier);
+                            yield return new Token(TokenType.OneOrMoreMultiplier) { Text = part };
                             break;
                         case "?":
-                            yield return new Token(TokenType.OneOrZeroMultiplier);
+                            yield return new Token(TokenType.OneOrZeroMultiplier) { Text = part };
                             break;
                         case "!":
-                            yield return new Token(TokenType.Production);
+                            yield return new Token(TokenType.Production) { Text = part };
                             break;
                         case "->":
-                            yield return new Token(TokenType.Arrow);
+                            yield return new Token(TokenType.Arrow) { Text = part };
                             break;
                         case "[":
-                            yield return new Token(TokenType.LBracket);
+                            yield return new Token(TokenType.LBracket) { Text = part };
                             break;
                         case "]":
-                            yield return new Token(TokenType.RBracket);
+                            yield return new Token(TokenType.RBracket) { Text = part };
                             break;
                         default:
                             if (part.StartsWith("#"))
