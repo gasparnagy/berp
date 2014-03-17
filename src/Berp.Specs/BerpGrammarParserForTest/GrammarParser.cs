@@ -64,13 +64,54 @@ Parameter, // Parameter! := #Rule #Arrow ParameterValue (#Comma ParameterValue)*
 ParameterValue, // ParameterValue := (#Rule | #Token)
 	}
 
+    public partial class ParserError
+    {
+        public string StateComment { get; private set; }
+
+        public Token ReceivedToken { get; private set; }
+        public string[] ExpectedTokenTypes { get; private set; }
+
+        public ParserError(Token receivedToken, string[] expectedTokenTypes, string stateComment)
+        {
+            this.ReceivedToken = receivedToken;
+            this.ExpectedTokenTypes = expectedTokenTypes;
+            this.StateComment = stateComment;
+        }
+
+        public override string ToString()
+        {
+            return ParserMessageProvider.GetParserErrorMessage(this);
+        }
+    }
+
+    public partial class ParserException : Exception
+    {
+        private ParserError[] errors = new ParserError[0];
+
+        public ParserError[] Errors { get { return errors; } }
+
+        public ParserException() { }
+        public ParserException(string message) : base(message) { }
+        public ParserException(string message, Exception inner) : base(message, inner) { }
+
+        public ParserException(params ParserError[] errors)
+            : base(ParserMessageProvider.GetDefaultExceptionMessage(errors))
+        {
+            if (errors != null)
+                this.errors = errors;
+        }
+    }
+
     public class Parser
     {
+		public bool StopAtFirstError { get; set;}
+
 		class ParserContext
 		{
 			public TokenScanner TokenScanner { get; set; }
 			public ASTBuilder Builder { get; set; }
 			public Queue<Token> TokenQueue { get; set; }
+			public List<ParserError> Errors { get; set; }
 		}
 
         public object Parse(TokenScanner tokenScanner)
@@ -79,7 +120,8 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 			{
 				TokenScanner = tokenScanner,
 				Builder = new ASTBuilder(),
-				TokenQueue = new Queue<Token>()
+				TokenQueue = new Queue<Token>(),
+				Errors = new List<ParserError>()
 			};
 
 			context.Builder.Push(RuleType.Grammar);
@@ -91,9 +133,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				state = MatchToken(state, token, context);
             } while(!token.IsEOF);
 
+			if (context.Errors.Count > 0)
+			{
+				throw new ParserException(context.Errors.ToArray());
+			}
+
 			if (state != 60)
 			{
-				throw new Exception("parsing error: end of file expected");
+				throw new InvalidOperationException("One of the grammar rules expected #EOF explicitly.");
 			}
 
 			context.Builder.Pop(RuleType.Grammar);
@@ -315,7 +362,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 					newState = MatchTokenAt_68(token, context);
 					break;
 				default:
-					throw new NotImplementedException();
+					throw new InvalidOperationException("Unknown state: " + state);
 			}
 			return newState;
 		}
@@ -336,7 +383,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 10;
 			}
-			throw new Exception("parsing error at state 0: Start");
+				var error = new ParserError(token, new string[] {"#LBracket", "#Rule"}, "State: 0 - Start");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 0;
+
 		}
 		
 		
@@ -348,7 +400,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 2;
 			}
-			throw new Exception("parsing error at state 1: Grammar:0>Settings:0>__grp5:0>#LBracket:0");
+				var error = new ParserError(token, new string[] {"#EOL"}, "State: 1 - Grammar:0>Settings:0>__grp5:0>#LBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 1;
+
 		}
 		
 		
@@ -366,7 +423,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 8;
 			}
-			throw new Exception("parsing error at state 2: Grammar:0>Settings:0>__grp5:1>#EOL:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#RBracket"}, "State: 2 - Grammar:0>Settings:0>__grp5:1>#EOL:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 2;
+
 		}
 		
 		
@@ -378,7 +440,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 4;
 			}
-			throw new Exception("parsing error at state 3: Grammar:0>Settings:1>Parameter:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#Arrow"}, "State: 3 - Grammar:0>Settings:1>Parameter:0>#Rule:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 3;
+
 		}
 		
 		
@@ -395,7 +462,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 5;
 			}
-			throw new Exception("parsing error at state 4: Grammar:0>Settings:1>Parameter:1>#Arrow:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 4 - Grammar:0>Settings:1>Parameter:1>#Arrow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 4;
+
 		}
 		
 		
@@ -412,7 +484,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 7;
 			}
-			throw new Exception("parsing error at state 5: Grammar:0>Settings:1>Parameter:2>ParameterValue:0>__alt8:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#Comma", "#EOL"}, "State: 5 - Grammar:0>Settings:1>Parameter:2>ParameterValue:0>__alt8:0>#Rule:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 5;
+
 		}
 		
 		
@@ -429,7 +506,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 5;
 			}
-			throw new Exception("parsing error at state 6: Grammar:0>Settings:1>Parameter:3>__grp7:0>#Comma:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 6 - Grammar:0>Settings:1>Parameter:3>__grp7:0>#Comma:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 6;
+
 		}
 		
 		
@@ -449,7 +531,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 8;
 			}
-			throw new Exception("parsing error at state 7: Grammar:0>Settings:1>Parameter:4>#EOL:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#RBracket"}, "State: 7 - Grammar:0>Settings:1>Parameter:4>#EOL:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 7;
+
 		}
 		
 		
@@ -461,7 +548,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 9;
 			}
-			throw new Exception("parsing error at state 8: Grammar:0>Settings:2>__grp6:0>#RBracket:0");
+				var error = new ParserError(token, new string[] {"#EOL"}, "State: 8 - Grammar:0>Settings:2>__grp6:0>#RBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 8;
+
 		}
 		
 		
@@ -475,7 +567,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 10;
 			}
-			throw new Exception("parsing error at state 9: Grammar:0>Settings:2>__grp6:1>#EOL:0");
+				var error = new ParserError(token, new string[] {"#Rule"}, "State: 9 - Grammar:0>Settings:2>__grp6:1>#EOL:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 9;
+
 		}
 		
 		
@@ -492,7 +589,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 12;
 			}
-			throw new Exception("parsing error at state 10: Grammar:1>RuleDefinition:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#Production", "#Definition"}, "State: 10 - Grammar:1>RuleDefinition:0>#Rule:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 10;
+
 		}
 		
 		
@@ -504,7 +606,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 12;
 			}
-			throw new Exception("parsing error at state 11: Grammar:1>RuleDefinition:1>#Production:0");
+				var error = new ParserError(token, new string[] {"#Definition"}, "State: 11 - Grammar:1>RuleDefinition:1>#Production:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 11;
+
 		}
 		
 		
@@ -540,7 +647,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 67;
 			}
-			throw new Exception("parsing error at state 12: Grammar:1>RuleDefinition:2>#Definition:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 12 - Grammar:1>RuleDefinition:2>#Definition:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 12;
+
 		}
 		
 		
@@ -557,7 +669,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 14;
 			}
-			throw new Exception("parsing error at state 13: Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 13 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 13;
+
 		}
 		
 		
@@ -574,7 +691,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 16;
 			}
-			throw new Exception("parsing error at state 14: Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 14 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 14;
+
 		}
 		
 		
@@ -591,7 +713,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 14;
 			}
-			throw new Exception("parsing error at state 15: Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 15 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 15;
+
 		}
 		
 		
@@ -667,7 +794,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 68;
 			}
-			throw new Exception("parsing error at state 16: Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 16 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 16;
+
 		}
 		
 		
@@ -685,7 +817,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 20;
 			}
-			throw new Exception("parsing error at state 17: Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+				var error = new ParserError(token, new string[] {"#Token", "#Arrow"}, "State: 17 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 17;
+
 		}
 		
 		
@@ -703,7 +840,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 20;
 			}
-			throw new Exception("parsing error at state 18: Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#Arrow"}, "State: 18 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 18;
+
 		}
 		
 		
@@ -715,7 +857,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 18;
 			}
-			throw new Exception("parsing error at state 19: Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 19 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 19;
+
 		}
 		
 		
@@ -728,7 +875,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 21;
 			}
-			throw new Exception("parsing error at state 20: Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 20 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 20;
+
 		}
 		
 		
@@ -746,7 +898,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 22;
 			}
-			throw new Exception("parsing error at state 21: Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RBracket"}, "State: 21 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 21;
+
 		}
 		
 		
@@ -815,7 +972,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 68;
 			}
-			throw new Exception("parsing error at state 22: Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 22 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 22;
+
 		}
 		
 		
@@ -861,7 +1023,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 68;
 			}
-			throw new Exception("parsing error at state 23: Grammar:1>RuleDefinition:3>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#EOL"}, "State: 23 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 23;
+
 		}
 		
 		
@@ -897,7 +1064,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 65;
 			}
-			throw new Exception("parsing error at state 24: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 24 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 24;
+
 		}
 		
 		
@@ -914,7 +1086,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 26;
 			}
-			throw new Exception("parsing error at state 25: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 25 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 25;
+
 		}
 		
 		
@@ -931,7 +1108,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 28;
 			}
-			throw new Exception("parsing error at state 26: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 26 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 26;
+
 		}
 		
 		
@@ -948,7 +1130,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 26;
 			}
-			throw new Exception("parsing error at state 27: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 27 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 27;
+
 		}
 		
 		
@@ -1024,7 +1211,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 66;
 			}
-			throw new Exception("parsing error at state 28: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 28 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 28;
+
 		}
 		
 		
@@ -1042,7 +1234,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 32;
 			}
-			throw new Exception("parsing error at state 29: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+				var error = new ParserError(token, new string[] {"#Token", "#Arrow"}, "State: 29 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 29;
+
 		}
 		
 		
@@ -1060,7 +1257,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 32;
 			}
-			throw new Exception("parsing error at state 30: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#Arrow"}, "State: 30 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 30;
+
 		}
 		
 		
@@ -1072,7 +1274,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 30;
 			}
-			throw new Exception("parsing error at state 31: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 31 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 31;
+
 		}
 		
 		
@@ -1085,7 +1292,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 33;
 			}
-			throw new Exception("parsing error at state 32: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 32 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 32;
+
 		}
 		
 		
@@ -1103,7 +1315,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 34;
 			}
-			throw new Exception("parsing error at state 33: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RBracket"}, "State: 33 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 33;
+
 		}
 		
 		
@@ -1172,7 +1389,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 66;
 			}
-			throw new Exception("parsing error at state 34: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 34 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 34;
+
 		}
 		
 		
@@ -1218,7 +1440,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 66;
 			}
-			throw new Exception("parsing error at state 35: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#RParen"}, "State: 35 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 35;
+
 		}
 		
 		
@@ -1254,7 +1481,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 63;
 			}
-			throw new Exception("parsing error at state 36: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 36 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 36;
+
 		}
 		
 		
@@ -1271,7 +1503,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 38;
 			}
-			throw new Exception("parsing error at state 37: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 37 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 37;
+
 		}
 		
 		
@@ -1288,7 +1525,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 40;
 			}
-			throw new Exception("parsing error at state 38: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 38 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 38;
+
 		}
 		
 		
@@ -1305,7 +1547,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 38;
 			}
-			throw new Exception("parsing error at state 39: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 39 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 39;
+
 		}
 		
 		
@@ -1381,7 +1628,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 64;
 			}
-			throw new Exception("parsing error at state 40: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 40 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 40;
+
 		}
 		
 		
@@ -1399,7 +1651,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 44;
 			}
-			throw new Exception("parsing error at state 41: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+				var error = new ParserError(token, new string[] {"#Token", "#Arrow"}, "State: 41 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 41;
+
 		}
 		
 		
@@ -1417,7 +1674,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 44;
 			}
-			throw new Exception("parsing error at state 42: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#Arrow"}, "State: 42 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 42;
+
 		}
 		
 		
@@ -1429,7 +1691,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 42;
 			}
-			throw new Exception("parsing error at state 43: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 43 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 43;
+
 		}
 		
 		
@@ -1442,7 +1709,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 45;
 			}
-			throw new Exception("parsing error at state 44: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 44 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 44;
+
 		}
 		
 		
@@ -1460,7 +1732,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 46;
 			}
-			throw new Exception("parsing error at state 45: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RBracket"}, "State: 45 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 45;
+
 		}
 		
 		
@@ -1529,7 +1806,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 64;
 			}
-			throw new Exception("parsing error at state 46: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 46 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 46;
+
 		}
 		
 		
@@ -1575,7 +1857,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 64;
 			}
-			throw new Exception("parsing error at state 47: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#RParen"}, "State: 47 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 47;
+
 		}
 		
 		
@@ -1611,7 +1898,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 61;
 			}
-			throw new Exception("parsing error at state 48: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 48 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 48;
+
 		}
 		
 		
@@ -1628,7 +1920,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 50;
 			}
-			throw new Exception("parsing error at state 49: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 49 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 49;
+
 		}
 		
 		
@@ -1645,7 +1942,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 52;
 			}
-			throw new Exception("parsing error at state 50: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 50 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 50;
+
 		}
 		
 		
@@ -1662,7 +1964,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 50;
 			}
-			throw new Exception("parsing error at state 51: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 51 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 51;
+
 		}
 		
 		
@@ -1738,7 +2045,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 62;
 			}
-			throw new Exception("parsing error at state 52: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 52 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 52;
+
 		}
 		
 		
@@ -1756,7 +2068,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 56;
 			}
-			throw new Exception("parsing error at state 53: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+				var error = new ParserError(token, new string[] {"#Token", "#Arrow"}, "State: 53 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 53;
+
 		}
 		
 		
@@ -1774,7 +2091,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 56;
 			}
-			throw new Exception("parsing error at state 54: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#Arrow"}, "State: 54 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 54;
+
 		}
 		
 		
@@ -1786,7 +2108,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 54;
 			}
-			throw new Exception("parsing error at state 55: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 55 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 55;
+
 		}
 		
 		
@@ -1799,7 +2126,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 57;
 			}
-			throw new Exception("parsing error at state 56: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 56 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 56;
+
 		}
 		
 		
@@ -1817,7 +2149,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 58;
 			}
-			throw new Exception("parsing error at state 57: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RBracket"}, "State: 57 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 57;
+
 		}
 		
 		
@@ -1886,7 +2223,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 62;
 			}
-			throw new Exception("parsing error at state 58: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 58 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 58;
+
 		}
 		
 		
@@ -1932,7 +2274,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 62;
 			}
-			throw new Exception("parsing error at state 59: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#RParen"}, "State: 59 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 59;
+
 		}
 		
 		
@@ -1999,7 +2346,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 62;
 			}
-			throw new Exception("parsing error at state 61: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 61 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 61;
+
 		}
 		
 		
@@ -2075,7 +2427,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 64;
 			}
-			throw new Exception("parsing error at state 62: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 62 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 62;
+
 		}
 		
 		
@@ -2142,7 +2499,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 64;
 			}
-			throw new Exception("parsing error at state 63: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 63 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 63;
+
 		}
 		
 		
@@ -2218,7 +2580,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 66;
 			}
-			throw new Exception("parsing error at state 64: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 64 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 64;
+
 		}
 		
 		
@@ -2285,7 +2652,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 66;
 			}
-			throw new Exception("parsing error at state 65: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 65 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 65;
+
 		}
 		
 		
@@ -2361,7 +2733,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 68;
 			}
-			throw new Exception("parsing error at state 66: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 66 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 66;
+
 		}
 		
 		
@@ -2428,7 +2805,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 68;
 			}
-			throw new Exception("parsing error at state 67: Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 67 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 67;
+
 		}
 		
 		
@@ -2448,7 +2830,12 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				context.Builder.Build(token);
 				return 10;
 			}
-			throw new Exception("parsing error at state 68: Grammar:1>RuleDefinition:5>#EOL:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Rule"}, "State: 68 - Grammar:1>RuleDefinition:5>#EOL:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 68;
+
 		}
 		
 

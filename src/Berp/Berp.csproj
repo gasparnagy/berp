@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlternateRule.cs" />
+    <Compile Include="BerpGrammar\ParserMessageProvider.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="GeneratorModel.cs" />
     <Compile Include="BerpGrammar\ASTBuilder.cs" />

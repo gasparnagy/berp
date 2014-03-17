@@ -22,79 +22,91 @@ namespace Berp.BerpGrammar
         {
             var tokenRe = new Regex(@"^(?<token>\:=|\-\>|\,|\[|\]|\(|\)|\*|\+|\?|\!|#\w+|\w[\w\.]*|\d+|\s|.)*$");
             string line;
+            int lineNumber = 0;
+            int linePosition = 0;
+            string tokenText = null;
+            Func<TokenType, Token> tokenFactory = tokenType => new Token(tokenType, lineNumber, linePosition) { Text = tokenText };
             while ((line = textReader.ReadLine()) != null)
             {
+                lineNumber++;
+
                 if (string.IsNullOrWhiteSpace(line))
                     continue;
                 if (line.Trim().StartsWith("//"))
                     continue; //TODO: comment
 
-                var parts = tokenRe.Match(line).Groups["token"].Captures.OfType<Capture>().Select(c => c.Value);
-                foreach (var part in parts.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()))
+                var parts = tokenRe.Match(line).Groups["token"].Captures.OfType<Capture>();
+                foreach (var part in parts.Where(p => !string.IsNullOrWhiteSpace(p.Value)))
                 {
-                    switch (part)
+                    tokenText = part.Value.Trim();
+                    linePosition = part.Index + 1;
+                    switch (tokenText)
                     {
                         case ",":
-                            yield return new Token(TokenType.Comma) { Text = part };
+                            yield return tokenFactory(TokenType.Comma);
                             break;
                         case ":=":
-                            yield return new Token(TokenType.Definition) { Text = part };
+                            yield return tokenFactory(TokenType.Definition);
                             break;
                         case "(":
-                            yield return new Token(TokenType.LParen) { Text = part };
+                            yield return tokenFactory(TokenType.LParen);
                             break;
                         case ")":
-                            yield return new Token(TokenType.RParen) { Text = part };
+                            yield return tokenFactory(TokenType.RParen);
                             break;
                         case "|":
-                            yield return new Token(TokenType.AlternateOp) { Text = part };
+                            yield return tokenFactory(TokenType.AlternateOp);
                             break;
                         case "*":
-                            yield return new Token(TokenType.AnyMultiplier) { Text = part };
+                            yield return tokenFactory(TokenType.AnyMultiplier);
                             break;
                         case "+":
-                            yield return new Token(TokenType.OneOrMoreMultiplier) { Text = part };
+                            yield return tokenFactory(TokenType.OneOrMoreMultiplier);
                             break;
                         case "?":
-                            yield return new Token(TokenType.OneOrZeroMultiplier) { Text = part };
+                            yield return tokenFactory(TokenType.OneOrZeroMultiplier);
                             break;
                         case "!":
-                            yield return new Token(TokenType.Production) { Text = part };
+                            yield return tokenFactory(TokenType.Production);
                             break;
                         case "->":
-                            yield return new Token(TokenType.Arrow) { Text = part };
+                            yield return tokenFactory(TokenType.Arrow);
                             break;
                         case "[":
-                            yield return new Token(TokenType.LBracket) { Text = part };
+                            yield return tokenFactory(TokenType.LBracket);
                             break;
                         case "]":
-                            yield return new Token(TokenType.RBracket) { Text = part };
+                            yield return tokenFactory(TokenType.RBracket);
                             break;
                         default:
-                            if (part.StartsWith("#"))
-                                yield return new Token(TokenType.Token) { Text = part/*.Substring(1)*/ };
-                            else if (char.IsDigit(part[0]))
-                                yield return new Token(TokenType.Number) { Text = part };
-                            else if (char.IsLetter(part[0]))
-                                yield return new Token(TokenType.Rule) { Text = part };
+                            if (tokenText.StartsWith("#"))
+                                yield return tokenFactory(TokenType.Token);
+                            else if (char.IsDigit(tokenText[0]))
+                                yield return tokenFactory(TokenType.Number);
+                            else if (char.IsLetter(tokenText[0]))
+                                yield return tokenFactory(TokenType.Rule);
                             else
                             {
-                                throw new Exception("Invalid token: " + part);
+                                throw new Exception("Invalid token: " + tokenText);
                             }
                             break;
                     }
                 }
 
-                yield return new Token(TokenType.EOL);
+                tokenText = null;
+                yield return tokenFactory(TokenType.EOL);
             }
+
+            linePosition = 1;
+            tokenText = null;
+            yield return tokenFactory(TokenType.EOF);
         }
 
         public Token Read()
         {
             if (!tokenEnumerator.MoveNext())
-                return new Token(TokenType.EOF);
+                throw new InvalidOperationException("Reader closed");
 
-//            Console.WriteLine("{0}: {1}", tokenEnumerator.Current.TokenType, tokenEnumerator.Current.Text);
             return tokenEnumerator.Current;
         }
     }

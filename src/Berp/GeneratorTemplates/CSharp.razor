@@ -14,6 +14,15 @@
 			break;
 	}
 }
+@helper HandleParserError(IEnumerable<string> expectedTokens, State state)
+{
+	@:var error = new ParserError(token, new string[] {"@Raw(string.Join("\", \"", expectedTokens))"}, "State: @state.Id - @Raw(state.Comment)");
+	@:if (StopAtFirstError)
+		@:throw new ParserException(error);
+
+	@:context.Errors.Add(error);
+	@:return @state.Id;
+}
 using System;
 using System.Collections.Generic;
 namespace @Model.Namespace
@@ -36,13 +45,54 @@ namespace @Model.Namespace
 		}
 	}
 
+    public partial class ParserError
+    {
+        public string StateComment { get; private set; }
+
+        public Token ReceivedToken { get; private set; }
+        public string[] ExpectedTokenTypes { get; private set; }
+
+        public ParserError(Token receivedToken, string[] expectedTokenTypes, string stateComment)
+        {
+            this.ReceivedToken = receivedToken;
+            this.ExpectedTokenTypes = expectedTokenTypes;
+            this.StateComment = stateComment;
+        }
+
+        public override string ToString()
+        {
+            return ParserMessageProvider.GetParserErrorMessage(this);
+        }
+    }
+
+    public partial class ParserException : Exception
+    {
+        private ParserError[] errors = new ParserError[0];
+
+        public ParserError[] Errors { get { return errors; } }
+
+        public ParserException() { }
+        public ParserException(string message) : base(message) { }
+        public ParserException(string message, Exception inner) : base(message, inner) { }
+
+        public ParserException(params ParserError[] errors)
+            : base(ParserMessageProvider.GetDefaultExceptionMessage(errors))
+        {
+            if (errors != null)
+                this.errors = errors;
+        }
+    }
+
     public class @Model.ParserClassName
     {
+		public bool StopAtFirstError { get; set;}
+
 		class ParserContext
 		{
 			public TokenScanner TokenScanner { get; set; }
 			public ASTBuilder Builder { get; set; }
 			public Queue<Token> TokenQueue { get; set; }
+			public List<ParserError> Errors { get; set; }
 		}
 
         public object Parse(TokenScanner tokenScanner)
@@ -51,7 +101,8 @@ namespace @Model.Namespace
 			{
 				TokenScanner = tokenScanner,
 				Builder = new ASTBuilder(),
-				TokenQueue = new Queue<Token>()
+				TokenQueue = new Queue<Token>(),
+				Errors = new List<ParserError>()
 			};
 
 			context.Builder.Push(RuleType.@Model.RuleSet.StartRule.Name);
@@ -63,9 +114,14 @@ namespace @Model.Namespace
 				state = MatchToken(state, token, context);
             } while(!token.IsEOF);
 
+			if (context.Errors.Count > 0)
+			{
+				throw new ParserException(context.Errors.ToArray());
+			}
+
 			if (state != @Model.EndState.Id)
 			{
-				throw new Exception("parsing error: end of file expected");
+				throw new InvalidOperationException("One of the grammar rules expected #EOF explicitly.");
 			}
 
 			context.Builder.Pop(RuleType.@Model.RuleSet.StartRule.Name);
@@ -89,7 +145,7 @@ namespace @Model.Namespace
 					@:break;
 			}
 				default:
-					throw new NotImplementedException();
+					throw new InvalidOperationException("Unknown state: " + state);
 			}
 			return newState;
 		}
@@ -120,7 +176,7 @@ namespace @Model.Namespace
 				}
 			@:}
 			}
-			throw new Exception("parsing error at state @(state.Id): @Raw(state.Comment)");
+			@HandleParserError(state.Transitions.Select(t => "#" + t.TokenType.ToString()).Distinct(), state)
 		}
 		</text>
 	}
