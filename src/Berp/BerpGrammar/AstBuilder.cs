@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Berp.BerpGrammar
 {
-    public class ASTBuilder
+    public class AstBuilder
     {
-        public class ASTNode
+        public class AstNode
         {
             public RuleType Node { get; set; }
             public List<KeyValuePair<RuleType, List<object>>> SubNodes { get; set; }
@@ -35,7 +35,7 @@ namespace Berp.BerpGrammar
                 SubNodes.Add(new KeyValuePair<RuleType, List<object>>(nodeName, new List<object> { subNode }));
             }
 
-            public ASTNode()
+            public AstNode()
             {
                 SubNodes = new List<KeyValuePair<RuleType, List<object>>>();
             }
@@ -49,12 +49,12 @@ namespace Berp.BerpGrammar
 
 
         private DomBuilder domBuilder = new DomBuilder();
-        private readonly Stack<ASTNode> stack = new Stack<ASTNode>();
-        public ASTNode CurrentNode { get { return stack.Peek(); } }
+        private readonly Stack<AstNode> stack = new Stack<AstNode>();
+        public AstNode CurrentNode { get { return stack.Peek(); } }
 
-        public ASTBuilder()
+        public AstBuilder()
         {
-            stack.Push(new ASTNode { Node = RuleType.None });
+            stack.Push(new AstNode { Node = RuleType.None });
         }
 
         public void Build(Token token)
@@ -66,12 +66,12 @@ namespace Berp.BerpGrammar
             }
         }
 
-        public void Push(RuleType node)
+        public void StartRule(RuleType node)
         {
-            stack.Push(new ASTNode { Node = node });
+            stack.Push(new AstNode { Node = node });
         }
 
-        public void Pop(RuleType node)
+        public void EndRule(RuleType node)
         {
             Pop();
         }
@@ -83,6 +83,6 @@ namespace Berp.BerpGrammar
             CurrentNode.AddSubNode(astNode.Node, subNode);
         }
 
-        public object RootNode { get { return CurrentNode.SubNodes[0].Value[0]; } }
+        public object GetResult() { return CurrentNode.SubNodes[0].Value[0]; }
     }
 }

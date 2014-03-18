@@ -9,7 +9,7 @@ namespace Berp.BerpGrammar
         private bool firstRule = true;
         readonly List<Rule> tempRules = new List<Rule>(); 
         private int counter = 0;
-        public object BuildFromNode(ASTBuilder.ASTNode astNode)
+        public object BuildFromNode(AstBuilder.AstNode astNode)
         {
             switch (astNode.Node)
             {

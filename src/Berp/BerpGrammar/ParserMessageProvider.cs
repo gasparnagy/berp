@@ -12,9 +12,9 @@ namespace Berp.BerpGrammar
         public int? LinePosition { get { return ReceivedToken.LinePosition; } }
     }
 
-    public static class ParserMessageProvider
+    public class ParserMessageProvider
     {
-        static public string GetDefaultExceptionMessage(ParserError[] errors)
+        public string GetDefaultExceptionMessage(ParserError[] errors)
         {
             if (errors == null || errors.Length == 0)
                 return "Parser error";
@@ -22,7 +22,7 @@ namespace Berp.BerpGrammar
             return "Parser errors: " + Environment.NewLine + string.Join(Environment.NewLine, errors.Select(e => GetParserErrorMessage(e)));
         }
 
-        static public string GetParserErrorMessage(ParserError error)
+        public string GetParserErrorMessage(ParserError error)
         {
             if (error.ReceivedToken.TokenType == TokenType.EOF)
                 return string.Format("Error at line {1}: unexpected end of file, expected: {0}", string.Join(", ", error.ExpectedTokenTypes), error.LineNumber);

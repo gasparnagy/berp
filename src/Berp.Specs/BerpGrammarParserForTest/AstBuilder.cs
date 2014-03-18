@@ -5,13 +5,13 @@ using System.Text;
 
 namespace Berp.BerpGrammar
 {
-    public class ASTBuilder
+    public class AstBuilder
     {
-        private class ASTNode : List<object>
+        private class AstNode : List<object>
         {
             private RuleType ruleType;
 
-            public ASTNode(RuleType ruleType)
+            public AstNode(RuleType ruleType)
             {
                 this.ruleType = ruleType;
             }
@@ -27,18 +27,18 @@ namespace Berp.BerpGrammar
                 var result = new StringBuilder();
                 result.AppendLine(indent + "[" + ruleType);
                 foreach(var subItem in this)
-                    result.AppendLine(subItem is ASTNode ? ((ASTNode)subItem).InternalToString(subIndent) : (subIndent + subItem.ToString()));
+                    result.AppendLine(subItem is AstNode ? ((AstNode)subItem).InternalToString(subIndent) : (subIndent + subItem.ToString()));
                 result.Append(indent + "]");
                 return result.ToString();
             }
         }
 
-        private readonly Stack<ASTNode> stack = new Stack<ASTNode>();
-        private ASTNode CurrentNode { get { return stack.Peek(); } }
+        private readonly Stack<AstNode> stack = new Stack<AstNode>();
+        private AstNode CurrentNode { get { return stack.Peek(); } }
 
-        public ASTBuilder()
+        public AstBuilder()
         {
-            stack.Push(new ASTNode(RuleType.None));
+            stack.Push(new AstNode(RuleType.None));
         }
 
         public void Build(Token token)
@@ -46,18 +46,20 @@ namespace Berp.BerpGrammar
             CurrentNode.Add(token);
         }
 
-        public void Push(RuleType ruleType)
+        public void StartRule(RuleType ruleType)
         {
-            stack.Push(new ASTNode(ruleType));
+            stack.Push(new AstNode(ruleType));
         }
 
-        public void Pop(RuleType ruleType)
+        public void EndRule(RuleType ruleType)
         {
             var node = stack.Pop();
             CurrentNode.Add(node);
         }
 
-
-        public object RootNode { get { return CurrentNode.First(); } }
+        public object GetResult() 
+        { 
+            return CurrentNode.First(); 
+        } 
     }
 }

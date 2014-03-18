@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Berp.BerpGrammar
 {
-    public class TokenScanner : TokenMatcher
+    public class TokenScanner
     {
         private readonly TextReader textReader;
         private readonly IEnumerator<Token> tokenEnumerator;

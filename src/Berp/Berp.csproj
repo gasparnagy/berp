@@ -55,7 +55,7 @@
     <Compile Include="BerpGrammar\ParserMessageProvider.cs" />
     <Compile Include="Branch.cs" />
     <Compile Include="GeneratorModel.cs" />
-    <Compile Include="BerpGrammar\ASTBuilder.cs" />
+    <Compile Include="BerpGrammar\AstBuilder.cs" />
     <Compile Include="BerpGrammar\DomBuilder.cs" />
     <Compile Include="BerpGrammar\GrammarParser.cs" />
     <Compile Include="BerpGrammar\Token.cs" />

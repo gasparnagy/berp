@@ -4,13 +4,13 @@
 	switch(production.Type)
 	{
 		case ProductionRuleType.Start:
-				@:context.Builder.Push(RuleType.@production.RuleName);
+				@:StartRule(context, RuleType.@production.RuleName);
 			break;
 		case ProductionRuleType.End:
-				@:context.Builder.Pop(RuleType.@production.RuleName);
+				@:EndRule(context, RuleType.@production.RuleName);
 			break;
 		case ProductionRuleType.Process:
-				@:context.Builder.Build(token);
+				@:Build(context, token);
 			break;
 	}
 }
@@ -18,10 +18,14 @@
 {
 	@:var error = new ParserError(token, new string[] {"@Raw(string.Join("\", \"", expectedTokens))"}, "State: @state.Id - @Raw(state.Comment)");
 	@:if (StopAtFirstError)
-		@:throw new ParserException(error);
+		@:throw new ParserException(ParserMessageProvider, error);
 
 	@:context.Errors.Add(error);
 	@:return @state.Id;
+}
+@helper MatchToken(TokenType tokenType)
+{
+	@:TokenMatcher.Match_@(tokenType)(token)
 }
 using System;
 using System.Collections.Generic;
@@ -58,11 +62,6 @@ namespace @Model.Namespace
             this.ExpectedTokenTypes = expectedTokenTypes;
             this.StateComment = stateComment;
         }
-
-        public override string ToString()
-        {
-            return ParserMessageProvider.GetParserErrorMessage(this);
-        }
     }
 
     public partial class ParserException : Exception
@@ -75,8 +74,8 @@ namespace @Model.Namespace
         public ParserException(string message) : base(message) { }
         public ParserException(string message, Exception inner) : base(message, inner) { }
 
-        public ParserException(params ParserError[] errors)
-            : base(ParserMessageProvider.GetDefaultExceptionMessage(errors))
+        public ParserException(ParserMessageProvider messageProvider, params ParserError[] errors) 
+			: base(messageProvider.GetDefaultExceptionMessage(errors))
         {
             if (errors != null)
                 this.errors = errors;
@@ -86,26 +85,43 @@ namespace @Model.Namespace
     public class @Model.ParserClassName
     {
 		public bool StopAtFirstError { get; set;}
+		public TokenMatcher TokenMatcher { get; private set; }
+		public ParserMessageProvider ParserMessageProvider { get; private set; }
 
 		class ParserContext
 		{
 			public TokenScanner TokenScanner { get; set; }
-			public ASTBuilder Builder { get; set; }
+			public AstBuilder Builder { get; set; }
 			public Queue<Token> TokenQueue { get; set; }
 			public List<ParserError> Errors { get; set; }
 		}
 
-        public object Parse(TokenScanner tokenScanner)
+		public @(Model.ParserClassName)() : this(new TokenMatcher(), new ParserMessageProvider())
+		{
+		}
+
+		public object Parse(TokenScanner tokenScanner)
+		{
+			return Parse(tokenScanner, new AstBuilder());
+		}
+
+		public @(Model.ParserClassName)(TokenMatcher tokenMatcher, ParserMessageProvider parserMessageProvider)
+		{
+			this.TokenMatcher = tokenMatcher;
+			this.ParserMessageProvider = parserMessageProvider;
+		}
+
+        public object Parse(TokenScanner tokenScanner, AstBuilder astBuilder)
 		{
 			var context = new ParserContext
 			{
 				TokenScanner = tokenScanner,
-				Builder = new ASTBuilder(),
+				Builder = astBuilder,
 				TokenQueue = new Queue<Token>(),
 				Errors = new List<ParserError>()
 			};
 
-			context.Builder.Push(RuleType.@Model.RuleSet.StartRule.Name);
+			StartRule(context, RuleType.@Model.RuleSet.StartRule.Name);
             int state = 0;
             Token token;
             do
@@ -116,7 +132,7 @@ namespace @Model.Namespace
 
 			if (context.Errors.Count > 0)
 			{
-				throw new ParserException(context.Errors.ToArray());
+				throw new ParserException(ParserMessageProvider, context.Errors.ToArray());
 			}
 
 			if (state != @Model.EndState.Id)
@@ -124,8 +140,28 @@ namespace @Model.Namespace
 				throw new InvalidOperationException("One of the grammar rules expected #EOF explicitly.");
 			}
 
-			context.Builder.Pop(RuleType.@Model.RuleSet.StartRule.Name);
-			return context.Builder.RootNode;
+			EndRule(context, RuleType.@Model.RuleSet.StartRule.Name);
+			return GetResult(context);
+		}
+
+		void Build(ParserContext context, Token token)
+		{
+			context.Builder.Build(token);
+		}
+
+		void StartRule(ParserContext context, RuleType ruleType)
+		{
+			context.Builder.StartRule(ruleType);
+		}
+
+		void EndRule(ParserContext context, RuleType ruleType)
+		{
+			context.Builder.EndRule(ruleType);
+		}
+
+		object GetResult(ParserContext context)
+		{
+			return context.Builder.GetResult();
 		}
 
 		Token ReadToken(ParserContext context)
@@ -158,7 +194,7 @@ namespace @Model.Namespace
 		{
 			@foreach(var transition in state.Transitions)
 			{
-			@:if (context.TokenScanner.Match_@(transition.TokenType)(token))
+			@:if (@MatchToken(transition.TokenType))
 			@:{
 				if (transition.LookAheadHint != null)
 				{
@@ -199,7 +235,7 @@ namespace @Model.Namespace
 		        if (false
 				@foreach(var tokenType in lookAheadHint.ExpectedTokens)
 				{
-					@:|| context.TokenScanner.Match_@(tokenType)(token)
+					@:|| @MatchToken(tokenType)
 				}
 				)
 		        {
@@ -209,7 +245,7 @@ namespace @Model.Namespace
 		    } while (false
 			@foreach(var tokenType in lookAheadHint.Skip)
 			{
-				@:|| context.TokenScanner.Match_@(tokenType)(token)
+				@:|| @MatchToken(tokenType)
 			}
 			);
 			foreach(var t in queue)
