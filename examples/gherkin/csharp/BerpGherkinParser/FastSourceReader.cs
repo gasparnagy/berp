@@ -125,6 +125,8 @@ namespace BerpGherkinParser
             private readonly int lineLength;
             private readonly int indent = 0;
 
+            public int LineNumber { get { return lineNo; } }
+
             public SourceLine(char[] buffer, int lineNo, int startIndex, int lineLength)
             {
                 this.buffer = buffer;

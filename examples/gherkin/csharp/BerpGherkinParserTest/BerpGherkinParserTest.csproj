@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B11D811B-9A00-4475-807F-C47CF09A6B61}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{D990D415-6A88-4E4A-8652-59DA5CC7D777}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BerpGherkinParser</RootNamespace>
-    <AssemblyName>BerpGherkinParser</AssemblyName>
+    <RootNamespace>BerpGherkinParserTest</RootNamespace>
+    <AssemblyName>BerpGherkinParserTest</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -51,20 +53,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ASTBuilder.cs" />
-    <Compile Include="DefaultSourceReader.cs" />
-    <Compile Include="DomBuilder.cs" />
-    <Compile Include="FastSourceReader.cs" />
-    <Compile Include="ISourceLine.cs" />
-    <Compile Include="ISourceReader.cs" />
-    <Compile Include="Parser.cs" />
-    <Compile Include="ParserMessageProvider.cs" />
+    <Compile Include="FeatureFormatter.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Token.cs" />
-    <Compile Include="TokenScanner.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BerpGherkinParser\BerpGherkinParser.csproj">
+      <Project>{b11d811b-9a00-4475-807f-c47cf09a6b61}</Project>
+      <Name>BerpGherkinParser</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

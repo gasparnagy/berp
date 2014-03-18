@@ -64,13 +64,54 @@ Description, // Description! := Description_Line+
 Description_Line, // Description_Line := (#Empty | #Other)
 	}
 
+    public partial class ParserError
+    {
+        public string StateComment { get; private set; }
+
+        public Token ReceivedToken { get; private set; }
+        public string[] ExpectedTokenTypes { get; private set; }
+
+        public ParserError(Token receivedToken, string[] expectedTokenTypes, string stateComment)
+        {
+            this.ReceivedToken = receivedToken;
+            this.ExpectedTokenTypes = expectedTokenTypes;
+            this.StateComment = stateComment;
+        }
+
+        public override string ToString()
+        {
+            return ParserMessageProvider.GetParserErrorMessage(this);
+        }
+    }
+
+    public partial class ParserException : Exception
+    {
+        private ParserError[] errors = new ParserError[0];
+
+        public ParserError[] Errors { get { return errors; } }
+
+        public ParserException() { }
+        public ParserException(string message) : base(message) { }
+        public ParserException(string message, Exception inner) : base(message, inner) { }
+
+        public ParserException(params ParserError[] errors)
+            : base(ParserMessageProvider.GetDefaultExceptionMessage(errors))
+        {
+            if (errors != null)
+                this.errors = errors;
+        }
+    }
+
     public class Parser
     {
+		public bool StopAtFirstError { get; set;}
+
 		class ParserContext
 		{
 			public TokenScanner TokenScanner { get; set; }
 			public ASTBuilder Builder { get; set; }
 			public Queue<Token> TokenQueue { get; set; }
+			public List<ParserError> Errors { get; set; }
 		}
 
         public object Parse(TokenScanner tokenScanner)
@@ -79,7 +120,8 @@ Description_Line, // Description_Line := (#Empty | #Other)
 			{
 				TokenScanner = tokenScanner,
 				Builder = new ASTBuilder(),
-				TokenQueue = new Queue<Token>()
+				TokenQueue = new Queue<Token>(),
+				Errors = new List<ParserError>()
 			};
 
 			context.Builder.Push(RuleType.Feature_File);
@@ -91,9 +133,14 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				state = MatchToken(state, token, context);
             } while(!token.IsEOF);
 
+			if (context.Errors.Count > 0)
+			{
+				throw new ParserException(context.Errors.ToArray());
+			}
+
 			if (state != 32)
 			{
-				throw new Exception("parsing error: end of file expected");
+				throw new InvalidOperationException("One of the grammar rules expected #EOF explicitly.");
 			}
 
 			context.Builder.Pop(RuleType.Feature_File);
@@ -234,7 +281,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 					newState = MatchTokenAt_41(token, context);
 					break;
 				default:
-					throw new NotImplementedException();
+					throw new InvalidOperationException("Unknown state: " + state);
 			}
 			return newState;
 		}
@@ -265,7 +312,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 0;
 			}
-			throw new Exception("parsing error at state 0: Start");
+				var error = new ParserError(token, new string[] {"#TagLine", "#Feature", "#Comment", "#Empty"}, "State: 0 - Start");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 0;
+
 		}
 		
 		
@@ -292,7 +344,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 1;
 			}
-			throw new Exception("parsing error at state 1: Feature_File:0>Feature_Def:0>#TagLine:0");
+				var error = new ParserError(token, new string[] {"#TagLine", "#Feature", "#Comment", "#Empty"}, "State: 1 - Feature_File:0>Feature_Def:0>#TagLine:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 1;
+
 		}
 		
 		
@@ -352,7 +409,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 3;
 			}
-			throw new Exception("parsing error at state 2: Feature_File:0>Feature_Def:1>#Feature:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Empty", "#Comment", "#Background", "#TagLine", "#Scenario", "#ScenarioOutline", "#Other"}, "State: 2 - Feature_File:0>Feature_Def:1>#Feature:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 2;
+
 		}
 		
 		
@@ -416,7 +478,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 3;
 			}
-			throw new Exception("parsing error at state 3: Feature_File:0>Feature_Def:2>Feature_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Empty", "#Comment", "#Background", "#TagLine", "#Scenario", "#ScenarioOutline", "#Other"}, "State: 3 - Feature_File:0>Feature_Def:2>Feature_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 3;
+
 		}
 		
 		
@@ -469,7 +536,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 4;
 			}
-			throw new Exception("parsing error at state 4: Feature_File:0>Feature_Def:2>Feature_Description:0>Description_Helper:1>#Comment:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Comment", "#Background", "#TagLine", "#Scenario", "#ScenarioOutline", "#Empty"}, "State: 4 - Feature_File:0>Feature_Def:2>Feature_Description:0>Description_Helper:1>#Comment:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 4;
+
 		}
 		
 		
@@ -528,7 +600,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 6;
 			}
-			throw new Exception("parsing error at state 5: Feature_File:1>Background:0>#Background:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Empty", "#Comment", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Other"}, "State: 5 - Feature_File:1>Background:0>#Background:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 5;
+
 		}
 		
 		
@@ -591,7 +668,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 6;
 			}
-			throw new Exception("parsing error at state 6: Feature_File:1>Background:1>Background_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Empty", "#Comment", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Other"}, "State: 6 - Feature_File:1>Background:1>Background_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 6;
+
 		}
 		
 		
@@ -643,7 +725,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 7;
 			}
-			throw new Exception("parsing error at state 7: Feature_File:1>Background:1>Background_Description:0>Description_Helper:1>#Comment:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Comment", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Empty"}, "State: 7 - Feature_File:1>Background:1>Background_Description:0>Description_Helper:1>#Comment:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 7;
+
 		}
 		
 		
@@ -712,7 +799,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 8;
 			}
-			throw new Exception("parsing error at state 8: Feature_File:1>Background:2>Scenario_Step:0>Step:0>#Step:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#TableRow", "#MultiLineArgument", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 8 - Feature_File:1>Background:2>Scenario_Step:0>Step:0>#Step:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 8;
+
 		}
 		
 		
@@ -786,7 +878,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 9;
 			}
-			throw new Exception("parsing error at state 9: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#TableRow", "#MultiLineArgument", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 9 - Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 9;
+
 		}
 		
 		
@@ -808,7 +905,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 10;
 			}
-			throw new Exception("parsing error at state 10: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#MultiLineArgument", "#Other"}, "State: 10 - Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 10;
+
 		}
 		
 		
@@ -870,7 +972,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 11;
 			}
-			throw new Exception("parsing error at state 11: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 11 - Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 11;
+
 		}
 		
 		
@@ -904,7 +1011,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 12;
 			}
-			throw new Exception("parsing error at state 12: Feature_File:2>Scenario_Base:0>#TagLine:0");
+				var error = new ParserError(token, new string[] {"#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 12 - Feature_File:2>Scenario_Base:0>#TagLine:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 12;
+
 		}
 		
 		
@@ -967,7 +1079,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 14;
 			}
-			throw new Exception("parsing error at state 13: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:0>#Scenario:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Empty", "#Comment", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Other"}, "State: 13 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:0>#Scenario:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 13;
+
 		}
 		
 		
@@ -1034,7 +1151,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 14;
 			}
-			throw new Exception("parsing error at state 14: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:1>Scenario_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Empty", "#Comment", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Other"}, "State: 14 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:1>Scenario_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 14;
+
 		}
 		
 		
@@ -1090,7 +1212,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 15;
 			}
-			throw new Exception("parsing error at state 15: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:1>Scenario_Description:0>Description_Helper:1>#Comment:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Comment", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Empty"}, "State: 15 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:1>Scenario_Description:0>Description_Helper:1>#Comment:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 15;
+
 		}
 		
 		
@@ -1163,7 +1290,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 16;
 			}
-			throw new Exception("parsing error at state 16: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:0>#Step:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#TableRow", "#MultiLineArgument", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 16 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:0>#Step:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 16;
+
 		}
 		
 		
@@ -1241,7 +1373,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 17;
 			}
-			throw new Exception("parsing error at state 17: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#TableRow", "#MultiLineArgument", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 17 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 17;
+
 		}
 		
 		
@@ -1263,7 +1400,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 18;
 			}
-			throw new Exception("parsing error at state 18: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#MultiLineArgument", "#Other"}, "State: 18 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 18;
+
 		}
 		
 		
@@ -1329,7 +1471,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 19;
 			}
-			throw new Exception("parsing error at state 19: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 19 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 19;
+
 		}
 		
 		
@@ -1371,7 +1518,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 21;
 			}
-			throw new Exception("parsing error at state 20: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:0>#ScenarioOutline:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#Comment", "#Step", "#TagLine", "#Examples", "#Other"}, "State: 20 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:0>#ScenarioOutline:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 20;
+
 		}
 		
 		
@@ -1415,7 +1567,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 21;
 			}
-			throw new Exception("parsing error at state 21: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#Comment", "#Step", "#TagLine", "#Examples", "#Other"}, "State: 21 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 21;
+
 		}
 		
 		
@@ -1450,7 +1607,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 22;
 			}
-			throw new Exception("parsing error at state 22: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:1>#Comment:0");
+				var error = new ParserError(token, new string[] {"#Comment", "#Step", "#TagLine", "#Examples", "#Empty"}, "State: 22 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:1>#Comment:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 22;
+
 		}
 		
 		
@@ -1500,7 +1662,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 23;
 			}
-			throw new Exception("parsing error at state 23: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:0>#Step:0");
+				var error = new ParserError(token, new string[] {"#TableRow", "#MultiLineArgument", "#Step", "#TagLine", "#Examples", "#Comment", "#Empty"}, "State: 23 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:0>#Step:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 23;
+
 		}
 		
 		
@@ -1553,7 +1720,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 24;
 			}
-			throw new Exception("parsing error at state 24: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0");
+				var error = new ParserError(token, new string[] {"#TableRow", "#MultiLineArgument", "#Step", "#TagLine", "#Examples", "#Comment", "#Empty"}, "State: 24 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 24;
+
 		}
 		
 		
@@ -1575,7 +1747,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 25;
 			}
-			throw new Exception("parsing error at state 25: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#MultiLineArgument", "#Other"}, "State: 25 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 25;
+
 		}
 		
 		
@@ -1616,7 +1793,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 26;
 			}
-			throw new Exception("parsing error at state 26: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#Step", "#TagLine", "#Examples", "#Comment", "#Empty"}, "State: 26 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 26;
+
 		}
 		
 		
@@ -1643,7 +1825,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 27;
 			}
-			throw new Exception("parsing error at state 27: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:0>#TagLine:0");
+				var error = new ParserError(token, new string[] {"#TagLine", "#Examples", "#Comment", "#Empty"}, "State: 27 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:0>#TagLine:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 27;
+
 		}
 		
 		
@@ -1673,7 +1860,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 29;
 			}
-			throw new Exception("parsing error at state 28: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:1>#Examples:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#Comment", "#TableRow", "#Other"}, "State: 28 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:1>#Examples:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 28;
+
 		}
 		
 		
@@ -1703,7 +1895,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 29;
 			}
-			throw new Exception("parsing error at state 29: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#Comment", "#TableRow", "#Other"}, "State: 29 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 29;
+
 		}
 		
 		
@@ -1726,7 +1923,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 30;
 			}
-			throw new Exception("parsing error at state 30: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:1>#Comment:0");
+				var error = new ParserError(token, new string[] {"#Comment", "#TableRow", "#Empty"}, "State: 30 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:1>#Comment:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 30;
+
 		}
 		
 		
@@ -1808,7 +2010,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 31;
 			}
-			throw new Exception("parsing error at state 31: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:3>Examples_Table:0>#TableRow:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#TableRow", "#TagLine", "#Examples", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 31 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:3>Examples_Table:0>#TableRow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 31;
+
 		}
 		
 		
@@ -1830,7 +2037,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 33;
 			}
-			throw new Exception("parsing error at state 33: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#MultiLineArgument", "#Other"}, "State: 33 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 33;
+
 		}
 		
 		
@@ -1878,7 +2090,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 34;
 			}
-			throw new Exception("parsing error at state 34: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#TableRow", "#Step", "#TagLine", "#Examples", "#Comment", "#Empty"}, "State: 34 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 34;
+
 		}
 		
 		
@@ -1924,7 +2141,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 35;
 			}
-			throw new Exception("parsing error at state 35: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0");
+				var error = new ParserError(token, new string[] {"#TableRow", "#Step", "#TagLine", "#Examples", "#Comment", "#Empty"}, "State: 35 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 35;
+
 		}
 		
 		
@@ -1946,7 +2168,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 36;
 			}
-			throw new Exception("parsing error at state 36: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#MultiLineArgument", "#Other"}, "State: 36 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 36;
+
 		}
 		
 		
@@ -2019,7 +2246,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 37;
 			}
-			throw new Exception("parsing error at state 37: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#TableRow", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 37 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 37;
+
 		}
 		
 		
@@ -2090,7 +2322,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 38;
 			}
-			throw new Exception("parsing error at state 38: Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#TableRow", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 38 - Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 38;
+
 		}
 		
 		
@@ -2112,7 +2349,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 39;
 			}
-			throw new Exception("parsing error at state 39: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#Empty", "#MultiLineArgument", "#Other"}, "State: 39 - Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 39;
+
 		}
 		
 		
@@ -2181,7 +2423,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 40;
 			}
-			throw new Exception("parsing error at state 40: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#TableRow", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 40 - Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 40;
+
 		}
 		
 		
@@ -2248,7 +2495,12 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				context.Builder.Build(token);
 				return 41;
 			}
-			throw new Exception("parsing error at state 41: Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#TableRow", "#Step", "#TagLine", "#Scenario", "#ScenarioOutline", "#Comment", "#Empty"}, "State: 41 - Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0");
+	if (StopAtFirstError)
+		throw new ParserException(error);
+	context.Errors.Add(error);
+	return 41;
+
 		}
 		
 

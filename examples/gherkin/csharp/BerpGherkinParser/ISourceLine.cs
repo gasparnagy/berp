@@ -6,6 +6,7 @@ namespace BerpGherkinParser
 {
     public interface ISourceLine
     {
+        int LineNumber { get; }
         int Indent { get; }
         bool IsEmpty();
         bool StartsWith(string text);

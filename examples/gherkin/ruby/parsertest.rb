@@ -129,7 +129,7 @@ class ASTBuilder
 	end
 
 	def push(rule)
-		@stack.push([])
+		@stack.push([rule])
 	end
 
 	def build(token)
@@ -142,7 +142,7 @@ class ASTBuilder
 	end
 
 	def rootNode?
-		@stack.first[0]
+		@stack.first[1]
 	end
 end
 
@@ -157,7 +157,7 @@ parser = Parser.new
 files = Dir.glob("../feature_files/*.feature")
 time = Time.now
 files.each do |file|
-	puts file
+	#puts file
 	parser.parse(TokenScanner.new(file))
 end
 elapsed = Time.now - time

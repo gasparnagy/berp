@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace BerpGherkinParser
 {
-    internal class DefaultSourceReader : ISourceReader
+    public class DefaultSourceReader : ISourceReader
     {
         private int lineNo = 0;
         private readonly TextReader innerReader;
@@ -44,6 +44,8 @@ namespace BerpGherkinParser
                     return lineText.Length - trimmedLineText.Length;
                 }
             }
+
+            public int LineNumber { get { return lineNo; } }
 
             public bool IsEmpty()
             {
