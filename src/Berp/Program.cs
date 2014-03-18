@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Berp.BerpGrammar;
 using CommandLine;
+using CommandLine.Text;
 
 namespace Berp
 {
@@ -13,7 +14,7 @@ namespace Berp
         [Option('t', "template", Required = true, HelpText = "Template (.razor) file for generation.")]
         public string Template { get; set; }
 
-        [Option('g', "grammar", Required = true, HelpText = "Grammar (.gnpg) file for generation.")]
+        [Option('g', "grammar", Required = true, HelpText = "Grammar (.berp) file for generation.")]
         public string Grammar { get; set; }
         [Option('o', "output", Required = true, HelpText = "Generated parser class file.")]
         public string OutputFile { get; set; }
@@ -23,48 +24,102 @@ namespace Berp
         [HelpOption]
         public string GetUsage()
         {
-            // this without using CommandLine.Text
-            //  or using HelpText.AutoBuild
-            var usage = new StringBuilder();
-            usage.AppendLine("GNPG Parser Generator 1.0");
-            usage.AppendLine("gnpg.exe -g grammar.gnpg -t template.razor -o parseroutpout [-d]");
-            return usage.ToString();
+            var help = GetHeader();
+            help.AddPreOptionsLine(string.Empty);
+            help.AddPreOptionsLine("Usage: berp.exe -g grammar.berp -t template.razor -o parseroutpout [-d]");
+            help.AddPreOptionsLine("       Check details at https://github.com/gasparnagy/berp");
+            help.AddOptions(this);
+            return help;
+        }
+
+        public HelpText GetHeader()
+        {
+            var help = new HelpText
+            {
+                Heading = HeadingInfo.Default,
+                Copyright = CopyrightInfo.Default,
+                AdditionalNewLineAfterOption = false,
+                AddDashesToOption = true
+            };
+            help.AddPreOptionsLine(string.Empty);
+
+            help.AddPreOptionsLine("Licensed under the Apache License, Version 2.0 (the \"License\")");
+            help.AddPreOptionsLine("    http://www.apache.org/licenses/LICENSE-2.0");
+            return help;
         }
     }
 
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             var options = new Options();
             if (CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                var grammarDefinition = File.ReadAllText(options.Grammar);
-                var parser = new BerpGrammar.Parser();
-                RuleSet ruleSet = (RuleSet)parser.Parse(new TokenScanner(new StringReader(grammarDefinition)));
-
-                if (options.DiagnosticsMode)
+                try
                 {
-                    Console.WriteLine(ruleSet.ToString(true));
-                    Console.WriteLine("---------------");
+                    GenerateParserInternal(options);
                 }
-
-                var states = StateCalculator.CalculateStates(ruleSet);
-
-                Console.WriteLine("Claculated {0} states for the parser.", states.Count);
-
-                if (options.DiagnosticsMode)
+                catch (Exception thrownEx)
                 {
-                    foreach (var state in states.Values)
+                    Console.WriteLine();
+                    Console.WriteLine("Generation failed.");
+                    var ex = thrownEx;
+                    while (ex != null)
                     {
-                        PrintStateTransitions(state);
-                        PrintStateBranches(state.Branches, state.Id);
+                        Console.WriteLine(ex.Message);
+                        ex = ex.InnerException;
                     }
-                }
 
-                var generator = new Generator(ruleSet.GetSetting("Namespace", "ParserGen"), ruleSet.GetSetting("ClassName", "Parser"));
-                generator.Generate(options.Template, ruleSet, states, options.OutputFile);
+                    if (options.DiagnosticsMode)
+                    {
+                        Console.WriteLine(thrownEx);
+                    }
+                    return 1;
+                }
+                return 0;
             }
+
+            return 2;
+        }
+
+        private static void GenerateParserInternal(Options options)
+        {
+            Console.WriteLine(options.GetHeader());
+            Console.WriteLine();
+            Console.WriteLine("Generating parser for grammar '{0}' using template '{1}'.", Path.GetFileName(options.Grammar), Path.GetFileName(options.Template));
+
+            Console.WriteLine("Loading grammar...");
+            var grammarDefinition = File.ReadAllText(options.Grammar);
+            var parser = new BerpGrammar.Parser();
+            RuleSet ruleSet = (RuleSet)parser.Parse(new TokenScanner(new StringReader(grammarDefinition)));
+
+            int tokenCount = ruleSet.Count(r => r is TokenRule);
+            Console.WriteLine("The grammar was loaded with {0} tokens and {1} rules.", tokenCount, ruleSet.Count() - tokenCount);
+
+            if (options.DiagnosticsMode)
+            {
+                Console.WriteLine(ruleSet.ToString(true));
+                Console.WriteLine("---------------");
+            }
+
+            Console.WriteLine("Calculating parser states...");
+            var states = StateCalculator.CalculateStates(ruleSet);
+
+            Console.WriteLine("{0} states calculated for the parser.", states.Count);
+
+            if (options.DiagnosticsMode)
+            {
+                foreach (var state in states.Values)
+                {
+                    PrintStateTransitions(state);
+                    PrintStateBranches(state.Branches, state.Id);
+                }
+            }
+
+            Console.WriteLine("Generating parser class...");
+            var generator = new Generator(ruleSet.GetSetting("Namespace", "ParserGen"), ruleSet.GetSetting("ClassName", "Parser"));
+            generator.Generate(options.Template, ruleSet, states, options.OutputFile);
         }
         private static void PrintStateTransitions(State state)
         {

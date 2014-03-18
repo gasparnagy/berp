@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using CommandLine;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,11 +7,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Berp Parser Generator")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("https://github.com/gasparnagy/berp")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("gasparnagy.com")]
 [assembly: AssemblyProduct("Berp")]
-[assembly: AssemblyCopyright("Copyright © Gaspar Nagy 2014")]
+[assembly: AssemblyCopyright("Copyright (C) 2014, Gaspar Nagy (http://gasparnagy.com)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
