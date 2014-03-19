@@ -11,9 +11,9 @@ namespace BerpGherkinParser
         public int? LineNumber { get { return ReceivedToken.Line != null ? (int?)ReceivedToken.Line.LineNumber + 1  : null; } }
     }
 
-    public static class ParserMessageProvider
+    public class ParserMessageProvider
     {
-        static public string GetDefaultExceptionMessage(ParserError[] errors)
+        public string GetDefaultExceptionMessage(ParserError[] errors)
         {
             if (errors == null || errors.Length == 0)
                 return "Parser error";
@@ -21,7 +21,7 @@ namespace BerpGherkinParser
             return "Parser errors: " + Environment.NewLine + string.Join(Environment.NewLine, errors.Select(e => GetParserErrorMessage(e)));
         }
 
-        static public string GetParserErrorMessage(ParserError error)
+        public string GetParserErrorMessage(ParserError error)
         {
             if (error.ReceivedToken.IsEOF)
                 return string.Format("Error: unexpected end of file, expected: {0}", string.Join(", ", error.ExpectedTokenTypes));

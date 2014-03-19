@@ -45,13 +45,13 @@ namespace BerpGherkinParser
         }
     }
 
-    public class ASTBuilder
+    public class AstBuilder
     {
         private readonly DomBuilder domBuilder = new DomBuilder();
         private readonly Stack<ASTNode> stack = new Stack<ASTNode>();
         public ASTNode CurrentNode { get { return stack.Peek(); } }
 
-        public ASTBuilder()
+        public AstBuilder()
         {
             stack.Push(new ASTNode {Node = RuleType.None} );
         }
@@ -65,23 +65,23 @@ namespace BerpGherkinParser
             }
         }
 
-        public void Push(RuleType node)
+        public void StartRule(RuleType node)
         {
             stack.Push(new ASTNode { Node = node });
         }
 
-        public void Pop(RuleType node)
+        public void EndRule(RuleType node)
         {
-            Pop();
+            EndRule();
         }
 
-        public void Pop()
+        public void EndRule()
         {
             var astNode = stack.Pop();
             var subNode = domBuilder.BuildFromNode(astNode);
             CurrentNode.AddSubNode(astNode.Node, subNode);
         }
 
-        public object RootNode { get { return CurrentNode.SubNodes[0].Value[0]; } }
+        public object GetResult() { return CurrentNode.SubNodes[0].Value[0]; } 
     }
 }

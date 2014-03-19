@@ -55,12 +55,14 @@
     <Compile Include="DefaultSourceReader.cs" />
     <Compile Include="DomBuilder.cs" />
     <Compile Include="FastSourceReader.cs" />
+    <Compile Include="GherkinKeywords.cs" />
     <Compile Include="ISourceLine.cs" />
     <Compile Include="ISourceReader.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ParserMessageProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Token.cs" />
+    <Compile Include="TokenMatcher.cs" />
     <Compile Include="TokenScanner.cs" />
   </ItemGroup>
   <ItemGroup>
