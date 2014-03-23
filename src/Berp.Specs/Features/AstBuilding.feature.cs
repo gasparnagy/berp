@@ -62,10 +62,10 @@ namespace Berp.Specs.Features
             testRunner.CollectScenarioErrors();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Build a simple AST (wihtout repeating elements)", SourceLine=2)]
-        public virtual void BuildASimpleASTWihtoutRepeatingElements()
+        [TechTalk.SpecRun.ScenarioAttribute("Build a simple AST (without repeating elements)", SourceLine=2)]
+        public virtual void BuildASimpleASTWithoutRepeatingElements()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Build a simple AST (wihtout repeating elements)", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Build a simple AST (without repeating elements)", ((string[])(null)));
 #line 3
 this.ScenarioSetup(scenarioInfo);
 #line hidden

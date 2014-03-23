@@ -1,6 +1,6 @@
 ﻿Feature: AST Building
 
-Scenario: Build a simple AST (wihtout repeating elements)
+Scenario: Build a simple AST (without repeating elements)
 	Given the input source
 		"""
 		Grammar := RuleA RuleB
