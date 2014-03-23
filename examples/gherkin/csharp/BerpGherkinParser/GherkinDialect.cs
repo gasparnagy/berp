@@ -1,24 +1,53 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BerpGherkinParser
 {
-    public class GherkinKeywords
+    public class GherkinDialect
     {
-        private readonly string[] featureKeywords = { "Feature" };
-        private readonly string[] backgroundKeywords = { "Background" };
-        private readonly string[] scenarioKeywords = { "Scenario" };
-        private readonly string[] scenarioOutlineKeywords = { "Scenario Outline", "Scenario Template" };
-        private readonly string[] examplesKeywords = { "Examples", "Scenarios" };
-        private readonly string[] stepKeywords = { "Given ", "When ", "Then ", "And ", "But ", "* " };
-        private readonly string[] givenStepKeywords = { "Given " };
-        private readonly string[] whenStepKeywords = { "When " };
-        private readonly string[] thenStepKeywords = { "Then " };
-        private readonly string[] andStepKeywords = { "And ", "But ", "* " };
-        private readonly string[] butStepKeywords = { "But " };
+        private readonly string[] featureKeywords;
+        private readonly string[] backgroundKeywords;
+        private readonly string[] scenarioKeywords;
+        private readonly string[] scenarioOutlineKeywords;
+        private readonly string[] examplesKeywords;
+        private readonly string[] givenStepKeywords;
+        private readonly string[] whenStepKeywords;
+        private readonly string[] thenStepKeywords;
+        private readonly string[] andStepKeywords;
+        private readonly string[] butStepKeywords;
+
+        private readonly string[] stepKeywords;
+
+        public GherkinDialect(
+            string[] featureKeywords, 
+            string[] backgroundKeywords, 
+            string[] scenarioKeywords,
+            string[] scenarioOutlineKeywords,
+            string[] examplesKeywords,
+            string[] givenStepKeywords,
+            string[] whenStepKeywords,
+            string[] thenStepKeywords,
+            string[] andStepKeywords,
+            string[] butStepKeywords)
+        {
+            this.featureKeywords = featureKeywords;
+            this.backgroundKeywords = backgroundKeywords;
+            this.scenarioKeywords = scenarioKeywords;
+            this.scenarioOutlineKeywords = scenarioOutlineKeywords;
+            this.examplesKeywords = examplesKeywords;
+            this.givenStepKeywords = givenStepKeywords;
+            this.whenStepKeywords = whenStepKeywords;
+            this.thenStepKeywords = thenStepKeywords;
+            this.andStepKeywords = andStepKeywords;
+            this.butStepKeywords = butStepKeywords;
+
+            this.stepKeywords = givenStepKeywords
+                .Concat(whenStepKeywords)
+                .Concat(thenStepKeywords)
+                .Concat(andStepKeywords)
+                .Concat(butStepKeywords)
+                .ToArray();
+        }
 
         public string[] FeatureKeywords
         {

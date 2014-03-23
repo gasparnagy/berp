@@ -15,10 +15,6 @@ namespace BerpGherkinParser
         public Token Read()
         {
             var line = reader.ReadLine();
-            //HACK: while commens are not implemented
-            while (line != null && (line.IsEmpty() || line.StartsWith("#")))
-                line = reader.ReadLine();
-
             return new Token(line);
         }
     }

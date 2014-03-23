@@ -100,37 +100,37 @@ Description_Line, // Description_Line := (#Empty | #Other)
     public class Parser
     {
 		public bool StopAtFirstError { get; set;}
-		public TokenMatcher TokenMatcher { get; private set; }
 		public ParserMessageProvider ParserMessageProvider { get; private set; }
 
 		class ParserContext
 		{
 			public TokenScanner TokenScanner { get; set; }
+			public TokenMatcher TokenMatcher { get; set; }
 			public AstBuilder Builder { get; set; }
 			public Queue<Token> TokenQueue { get; set; }
 			public List<ParserError> Errors { get; set; }
 		}
 
-		public Parser() : this(new TokenMatcher(), new ParserMessageProvider())
+		public Parser() : this(new ParserMessageProvider())
 		{
 		}
 
 		public object Parse(TokenScanner tokenScanner)
 		{
-			return Parse(tokenScanner, new AstBuilder());
+			return Parse(tokenScanner, new TokenMatcher(), new AstBuilder());
 		}
 
-		public Parser(TokenMatcher tokenMatcher, ParserMessageProvider parserMessageProvider)
+		public Parser(ParserMessageProvider parserMessageProvider)
 		{
-			this.TokenMatcher = tokenMatcher;
 			this.ParserMessageProvider = parserMessageProvider;
 		}
 
-        public object Parse(TokenScanner tokenScanner, AstBuilder astBuilder)
+        public object Parse(TokenScanner tokenScanner, TokenMatcher tokenMatcher, AstBuilder astBuilder)
 		{
 			var context = new ParserContext
 			{
 				TokenScanner = tokenScanner,
+				TokenMatcher = tokenMatcher,
 				Builder = astBuilder,
 				TokenQueue = new Queue<Token>(),
 				Errors = new List<ParserError>()
@@ -322,27 +322,27 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Start
 		int MatchTokenAt_0(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				StartRule(context, RuleType.Feature_Def);
 				Build(context, token);
 				return 1;
 			}
-			if (	TokenMatcher.Match_Feature(token)
+			if (	context.TokenMatcher.Match_Feature(token)
 )
 			{
 				StartRule(context, RuleType.Feature_Def);
 				Build(context, token);
 				return 2;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 0;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -360,25 +360,25 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:0>Feature_Def:0>#TagLine:0
 		int MatchTokenAt_1(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				Build(context, token);
 				return 1;
 			}
-			if (	TokenMatcher.Match_Feature(token)
+			if (	context.TokenMatcher.Match_Feature(token)
 )
 			{
 				Build(context, token);
 				return 2;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 1;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -396,27 +396,27 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:0>Feature_Def:1>#Feature:0
 		int MatchTokenAt_2(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				StartRule(context, RuleType.Description);
 				Build(context, token);
 				return 3;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 4;
 			}
-			if (	TokenMatcher.Match_Background(token)
+			if (	context.TokenMatcher.Match_Background(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
@@ -424,7 +424,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 5;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
@@ -432,7 +432,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
@@ -441,7 +441,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
@@ -450,7 +450,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				StartRule(context, RuleType.Description);
@@ -469,7 +469,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:0>Feature_Def:2>Feature_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		int MatchTokenAt_3(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -477,20 +477,20 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 3;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				EndRule(context, RuleType.Description);
 				Build(context, token);
 				return 4;
 			}
-			if (	TokenMatcher.Match_Background(token)
+			if (	context.TokenMatcher.Match_Background(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -499,7 +499,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 5;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -508,7 +508,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -518,7 +518,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -528,7 +528,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -546,20 +546,20 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:0>Feature_Def:2>Feature_Description:0>Description_Helper:1>#Comment:0
 		int MatchTokenAt_4(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 4;
 			}
-			if (	TokenMatcher.Match_Background(token)
+			if (	context.TokenMatcher.Match_Background(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
@@ -567,7 +567,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 5;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
@@ -575,7 +575,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
@@ -584,7 +584,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Feature_Def);
@@ -593,7 +593,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -611,34 +611,34 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:0>#Background:0
 		int MatchTokenAt_5(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Background);
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				StartRule(context, RuleType.Description);
 				Build(context, token);
 				return 6;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 7;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				StartRule(context, RuleType.Step);
 				Build(context, token);
 				return 8;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Background);
@@ -646,7 +646,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Background);
@@ -655,7 +655,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Background);
@@ -664,7 +664,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				StartRule(context, RuleType.Description);
@@ -683,7 +683,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:1>Background_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		int MatchTokenAt_6(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -691,20 +691,20 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 6;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				EndRule(context, RuleType.Description);
 				Build(context, token);
 				return 7;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -712,7 +712,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 8;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -721,7 +721,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -731,7 +731,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -741,7 +741,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -759,27 +759,27 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:1>Background_Description:0>Description_Helper:1>#Comment:0
 		int MatchTokenAt_7(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Background);
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 7;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				StartRule(context, RuleType.Step);
 				Build(context, token);
 				return 8;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Background);
@@ -787,7 +787,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Background);
@@ -796,7 +796,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Background);
@@ -805,7 +805,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -823,7 +823,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:2>Scenario_Step:0>Step:0>#Step:0
 		int MatchTokenAt_8(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -831,21 +831,21 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				StartRule(context, RuleType.Table_Arg);
 				Build(context, token);
 				return 9;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				StartRule(context, RuleType.Multiline_Arg);
 				Build(context, token);
 				return 39;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -853,7 +853,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 8;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -862,7 +862,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -872,7 +872,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -882,13 +882,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 8;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -906,7 +906,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0
 		int MatchTokenAt_9(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -915,13 +915,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				Build(context, token);
 				return 9;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -929,7 +929,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 10;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -938,7 +938,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 8;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -948,7 +948,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -959,7 +959,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -970,13 +970,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 9;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -994,19 +994,19 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0
 		int MatchTokenAt_10(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 10;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				Build(context, token);
 				return 11;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -1024,7 +1024,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0
 		int MatchTokenAt_11(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1033,7 +1033,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1042,7 +1042,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 8;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1052,7 +1052,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1063,7 +1063,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1074,13 +1074,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 11;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -1098,33 +1098,33 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:0>#TagLine:0
 		int MatchTokenAt_12(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				StartRule(context, RuleType.Scenario);
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				StartRule(context, RuleType.ScenarioOutline);
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -1142,7 +1142,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:0>#Scenario:0
 		int MatchTokenAt_13(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Scenario);
@@ -1150,27 +1150,27 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				StartRule(context, RuleType.Description);
 				Build(context, token);
 				return 14;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 15;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				StartRule(context, RuleType.Step);
 				Build(context, token);
 				return 16;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Scenario);
@@ -1179,7 +1179,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Scenario);
@@ -1189,7 +1189,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Scenario);
@@ -1199,7 +1199,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				StartRule(context, RuleType.Description);
@@ -1218,7 +1218,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:1>Scenario_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		int MatchTokenAt_14(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -1227,20 +1227,20 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 14;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				EndRule(context, RuleType.Description);
 				Build(context, token);
 				return 15;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -1248,7 +1248,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 16;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -1258,7 +1258,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -1269,7 +1269,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -1280,7 +1280,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -1298,7 +1298,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:1>Scenario_Description:0>Description_Helper:1>#Comment:0
 		int MatchTokenAt_15(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Scenario);
@@ -1306,20 +1306,20 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 15;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				StartRule(context, RuleType.Step);
 				Build(context, token);
 				return 16;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Scenario);
@@ -1328,7 +1328,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Scenario);
@@ -1338,7 +1338,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Scenario);
@@ -1348,7 +1348,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -1366,7 +1366,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:0>#Step:0
 		int MatchTokenAt_16(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -1375,21 +1375,21 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				StartRule(context, RuleType.Table_Arg);
 				Build(context, token);
 				return 17;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				StartRule(context, RuleType.Multiline_Arg);
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -1397,7 +1397,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 16;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -1407,7 +1407,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -1418,7 +1418,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -1429,13 +1429,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 16;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -1453,7 +1453,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0
 		int MatchTokenAt_17(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1463,13 +1463,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				Build(context, token);
 				return 17;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1477,7 +1477,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 18;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1486,7 +1486,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 16;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1497,7 +1497,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1509,7 +1509,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1521,13 +1521,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 17;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -1545,19 +1545,19 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0
 		int MatchTokenAt_18(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 18;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				Build(context, token);
 				return 19;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -1575,7 +1575,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0
 		int MatchTokenAt_19(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1585,7 +1585,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1594,7 +1594,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 16;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1605,7 +1605,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1617,7 +1617,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1629,13 +1629,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 19;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -1653,41 +1653,41 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:0>#ScenarioOutline:0
 		int MatchTokenAt_20(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				StartRule(context, RuleType.Description);
 				Build(context, token);
 				return 21;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 22;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				StartRule(context, RuleType.Step);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				StartRule(context, RuleType.Examples);
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				StartRule(context, RuleType.Examples);
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				StartRule(context, RuleType.Description);
@@ -1706,20 +1706,20 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		int MatchTokenAt_21(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 21;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				EndRule(context, RuleType.Description);
 				Build(context, token);
 				return 22;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -1727,7 +1727,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -1735,7 +1735,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -1743,7 +1743,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -1761,34 +1761,34 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:1>ScenarioOutline_Description:0>Description_Helper:1>#Comment:0
 		int MatchTokenAt_22(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 22;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				StartRule(context, RuleType.Step);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				StartRule(context, RuleType.Examples);
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				StartRule(context, RuleType.Examples);
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -1806,21 +1806,21 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:0>#Step:0
 		int MatchTokenAt_23(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				StartRule(context, RuleType.Table_Arg);
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				StartRule(context, RuleType.Multiline_Arg);
 				Build(context, token);
 				return 33;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -1828,7 +1828,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -1836,7 +1836,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				EndRule(context, RuleType.Step);
@@ -1844,13 +1844,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -1868,13 +1868,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:0>Table_Arg:0>#TableRow:0
 		int MatchTokenAt_24(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1882,7 +1882,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 25;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1891,7 +1891,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1900,7 +1900,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -1909,13 +1909,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -1933,19 +1933,19 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:0>#MultiLineArgument:0
 		int MatchTokenAt_25(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 25;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				Build(context, token);
 				return 26;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -1963,7 +1963,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:0>Table_And_Multiline_Arg:1>Multiline_Arg:2>#MultiLineArgument:0
 		int MatchTokenAt_26(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1972,7 +1972,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1981,7 +1981,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -1990,13 +1990,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 26;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2014,25 +2014,25 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:0>#TagLine:0
 		int MatchTokenAt_27(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2050,27 +2050,27 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:1>#Examples:0
 		int MatchTokenAt_28(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				StartRule(context, RuleType.Description);
 				Build(context, token);
 				return 29;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 30;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				StartRule(context, RuleType.Examples_Table);
 				Build(context, token);
 				return 31;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				StartRule(context, RuleType.Description);
@@ -2089,20 +2089,20 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:0>Description:0>Description_Line:0>__alt3:0>#Empty:0
 		int MatchTokenAt_29(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 29;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				EndRule(context, RuleType.Description);
 				Build(context, token);
 				return 30;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				EndRule(context, RuleType.Description);
@@ -2110,7 +2110,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 31;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -2128,20 +2128,20 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:2>Examples_Description:0>Description_Helper:1>#Comment:0
 		int MatchTokenAt_30(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 30;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				StartRule(context, RuleType.Examples_Table);
 				Build(context, token);
 				return 31;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2159,7 +2159,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:3>Examples:3>Examples_Table:0>#TableRow:0
 		int MatchTokenAt_31(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Examples_Table);
@@ -2169,13 +2169,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				Build(context, token);
 				return 31;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2187,7 +2187,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				return 27;
 				}
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Examples_Table);
@@ -2198,7 +2198,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				EndRule(context, RuleType.Examples_Table);
@@ -2207,7 +2207,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Examples_Table);
@@ -2219,7 +2219,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Examples_Table);
@@ -2231,13 +2231,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 31;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2255,19 +2255,19 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0
 		int MatchTokenAt_33(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 33;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				Build(context, token);
 				return 34;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -2285,7 +2285,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0
 		int MatchTokenAt_34(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2293,7 +2293,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2302,7 +2302,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2311,7 +2311,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2320,13 +2320,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 34;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2344,13 +2344,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:1>ScenarioOutline:2>ScenarioOutline_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0
 		int MatchTokenAt_35(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2359,7 +2359,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2368,7 +2368,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_Examples(token)
+			if (	context.TokenMatcher.Match_Examples(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2377,13 +2377,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 28;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2401,19 +2401,19 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0
 		int MatchTokenAt_36(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				Build(context, token);
 				return 37;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -2431,7 +2431,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0
 		int MatchTokenAt_37(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2441,7 +2441,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2449,7 +2449,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 38;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2458,7 +2458,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 16;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2469,7 +2469,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2481,7 +2481,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2493,13 +2493,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 37;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2517,7 +2517,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:2>Scenario_Base:1>Scenario_Base_Body:0>__alt0:0>Scenario:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0
 		int MatchTokenAt_38(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2527,13 +2527,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				Build(context, token);
 				return 38;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2542,7 +2542,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 16;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2553,7 +2553,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2565,7 +2565,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2577,13 +2577,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 38;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2601,19 +2601,19 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:0>#MultiLineArgument:0
 		int MatchTokenAt_39(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
 				return 39;
 			}
-			if (	TokenMatcher.Match_MultiLineArgument(token)
+			if (	context.TokenMatcher.Match_MultiLineArgument(token)
 )
 			{
 				Build(context, token);
 				return 40;
 			}
-			if (	TokenMatcher.Match_Other(token)
+			if (	context.TokenMatcher.Match_Other(token)
 )
 			{
 				Build(context, token);
@@ -2631,7 +2631,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:0>Multiline_Arg:2>#MultiLineArgument:0
 		int MatchTokenAt_40(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2640,7 +2640,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2648,7 +2648,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 41;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2657,7 +2657,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 8;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2667,7 +2667,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2678,7 +2678,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Multiline_Arg);
@@ -2689,13 +2689,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 40;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2713,7 +2713,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		// Feature_File:1>Background:2>Scenario_Step:0>Step:1>Step_Arg:0>__alt1:1>Multiline_And_Table_Arg:1>Table_Arg:0>#TableRow:0
 		int MatchTokenAt_41(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2722,13 +2722,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 32;
 			}
-			if (	TokenMatcher.Match_TableRow(token)
+			if (	context.TokenMatcher.Match_TableRow(token)
 )
 			{
 				Build(context, token);
 				return 41;
 			}
-			if (	TokenMatcher.Match_Step(token)
+			if (	context.TokenMatcher.Match_Step(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2737,7 +2737,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 8;
 			}
-			if (	TokenMatcher.Match_TagLine(token)
+			if (	context.TokenMatcher.Match_TagLine(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2747,7 +2747,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 12;
 			}
-			if (	TokenMatcher.Match_Scenario(token)
+			if (	context.TokenMatcher.Match_Scenario(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2758,7 +2758,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 13;
 			}
-			if (	TokenMatcher.Match_ScenarioOutline(token)
+			if (	context.TokenMatcher.Match_ScenarioOutline(token)
 )
 			{
 				EndRule(context, RuleType.Table_Arg);
@@ -2769,13 +2769,13 @@ Description_Line, // Description_Line := (#Empty | #Other)
 				Build(context, token);
 				return 20;
 			}
-			if (	TokenMatcher.Match_Comment(token)
+			if (	context.TokenMatcher.Match_Comment(token)
 )
 			{
 				Build(context, token);
 				return 41;
 			}
-			if (	TokenMatcher.Match_Empty(token)
+			if (	context.TokenMatcher.Match_Empty(token)
 )
 			{
 				Build(context, token);
@@ -2804,7 +2804,7 @@ Description_Line, // Description_Line := (#Empty | #Other)
 		        queue.Enqueue(token);
 
 		        if (false
-					|| 	TokenMatcher.Match_Examples(token)
+					|| 	context.TokenMatcher.Match_Examples(token)
 
 				)
 		        {
@@ -2812,11 +2812,11 @@ Description_Line, // Description_Line := (#Empty | #Other)
 					break;
 		        }
 		    } while (false
-				|| 	TokenMatcher.Match_Empty(token)
+				|| 	context.TokenMatcher.Match_Empty(token)
 
-				|| 	TokenMatcher.Match_Comment(token)
+				|| 	context.TokenMatcher.Match_Comment(token)
 
-				|| 	TokenMatcher.Match_TagLine(token)
+				|| 	context.TokenMatcher.Match_TagLine(token)
 
 			);
 			foreach(var t in queue)

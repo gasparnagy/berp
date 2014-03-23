@@ -25,7 +25,7 @@
 }
 @helper MatchToken(TokenType tokenType)
 {
-	@:TokenMatcher.Match_@(tokenType)(token)
+	@:context.TokenMatcher.Match_@(tokenType)(token)
 }
 using System;
 using System.Collections.Generic;
@@ -85,37 +85,37 @@ namespace @Model.Namespace
     public class @Model.ParserClassName
     {
 		public bool StopAtFirstError { get; set;}
-		public TokenMatcher TokenMatcher { get; private set; }
 		public ParserMessageProvider ParserMessageProvider { get; private set; }
 
 		class ParserContext
 		{
 			public TokenScanner TokenScanner { get; set; }
+			public TokenMatcher TokenMatcher { get; set; }
 			public AstBuilder Builder { get; set; }
 			public Queue<Token> TokenQueue { get; set; }
 			public List<ParserError> Errors { get; set; }
 		}
 
-		public @(Model.ParserClassName)() : this(new TokenMatcher(), new ParserMessageProvider())
+		public @(Model.ParserClassName)() : this(new ParserMessageProvider())
 		{
 		}
 
 		public object Parse(TokenScanner tokenScanner)
 		{
-			return Parse(tokenScanner, new AstBuilder());
+			return Parse(tokenScanner, new TokenMatcher(), new AstBuilder());
 		}
 
-		public @(Model.ParserClassName)(TokenMatcher tokenMatcher, ParserMessageProvider parserMessageProvider)
+		public @(Model.ParserClassName)(ParserMessageProvider parserMessageProvider)
 		{
-			this.TokenMatcher = tokenMatcher;
 			this.ParserMessageProvider = parserMessageProvider;
 		}
 
-        public object Parse(TokenScanner tokenScanner, AstBuilder astBuilder)
+        public object Parse(TokenScanner tokenScanner, TokenMatcher tokenMatcher, AstBuilder astBuilder)
 		{
 			var context = new ParserContext
 			{
 				TokenScanner = tokenScanner,
+				TokenMatcher = tokenMatcher,
 				Builder = astBuilder,
 				TokenQueue = new Queue<Token>(),
 				Errors = new List<ParserError>()

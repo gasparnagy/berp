@@ -100,37 +100,37 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
     public class Parser
     {
 		public bool StopAtFirstError { get; set;}
-		public TokenMatcher TokenMatcher { get; private set; }
 		public ParserMessageProvider ParserMessageProvider { get; private set; }
 
 		class ParserContext
 		{
 			public TokenScanner TokenScanner { get; set; }
+			public TokenMatcher TokenMatcher { get; set; }
 			public AstBuilder Builder { get; set; }
 			public Queue<Token> TokenQueue { get; set; }
 			public List<ParserError> Errors { get; set; }
 		}
 
-		public Parser() : this(new TokenMatcher(), new ParserMessageProvider())
+		public Parser() : this(new ParserMessageProvider())
 		{
 		}
 
 		public object Parse(TokenScanner tokenScanner)
 		{
-			return Parse(tokenScanner, new AstBuilder());
+			return Parse(tokenScanner, new TokenMatcher(), new AstBuilder());
 		}
 
-		public Parser(TokenMatcher tokenMatcher, ParserMessageProvider parserMessageProvider)
+		public Parser(ParserMessageProvider parserMessageProvider)
 		{
-			this.TokenMatcher = tokenMatcher;
 			this.ParserMessageProvider = parserMessageProvider;
 		}
 
-        public object Parse(TokenScanner tokenScanner, AstBuilder astBuilder)
+        public object Parse(TokenScanner tokenScanner, TokenMatcher tokenMatcher, AstBuilder astBuilder)
 		{
 			var context = new ParserContext
 			{
 				TokenScanner = tokenScanner,
+				TokenMatcher = tokenMatcher,
 				Builder = astBuilder,
 				TokenQueue = new Queue<Token>(),
 				Errors = new List<ParserError>()
@@ -403,14 +403,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Start
 		int MatchTokenAt_0(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				StartRule(context, RuleType.Settings);
 				Build(context, token);
 				return 1;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinition);
@@ -429,7 +429,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:0>__grp5:0>#LBracket:0
 		int MatchTokenAt_1(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				Build(context, token);
@@ -447,14 +447,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:0>__grp5:1>#EOL:0
 		int MatchTokenAt_2(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.Parameter);
 				Build(context, token);
 				return 3;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_RBracket(token)
 )
 			{
 				Build(context, token);
@@ -472,7 +472,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:0>#Rule:0
 		int MatchTokenAt_3(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				Build(context, token);
@@ -490,13 +490,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:1>#Arrow:0
 		int MatchTokenAt_4(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 5;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -514,13 +514,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:2>ParameterValue:0>__alt8:0>#Rule:0
 		int MatchTokenAt_5(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Comma(token)
+			if (	context.TokenMatcher.Match_Comma(token)
 )
 			{
 				Build(context, token);
 				return 6;
 			}
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				Build(context, token);
@@ -538,13 +538,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:3>__grp7:0>#Comma:0
 		int MatchTokenAt_6(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 5;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -562,7 +562,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:4>#EOL:0
 		int MatchTokenAt_7(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.Parameter);
@@ -570,7 +570,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 3;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_RBracket(token)
 )
 			{
 				EndRule(context, RuleType.Parameter);
@@ -589,7 +589,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:2>__grp6:0>#RBracket:0
 		int MatchTokenAt_8(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				Build(context, token);
@@ -607,7 +607,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:2>__grp6:1>#EOL:0
 		int MatchTokenAt_9(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.Settings);
@@ -627,13 +627,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:0>#Rule:0
 		int MatchTokenAt_10(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Production(token)
+			if (	context.TokenMatcher.Match_Production(token)
 )
 			{
 				Build(context, token);
 				return 11;
 			}
-			if (	TokenMatcher.Match_Definition(token)
+			if (	context.TokenMatcher.Match_Definition(token)
 )
 			{
 				Build(context, token);
@@ -651,7 +651,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:1>#Production:0
 		int MatchTokenAt_11(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Definition(token)
+			if (	context.TokenMatcher.Match_Definition(token)
 )
 			{
 				Build(context, token);
@@ -669,7 +669,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:2>#Definition:0
 		int MatchTokenAt_12(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -680,7 +680,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 13;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
@@ -688,14 +688,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
@@ -714,13 +714,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
 		int MatchTokenAt_13(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 14;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -738,13 +738,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
 		int MatchTokenAt_14(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 15;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				Build(context, token);
@@ -762,13 +762,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
 		int MatchTokenAt_15(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 14;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -786,7 +786,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
 		int MatchTokenAt_16(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -794,28 +794,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 17;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -828,7 +828,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 13;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -838,7 +838,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -847,7 +847,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -856,7 +856,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -876,14 +876,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:0>#LBracket:0
 		int MatchTokenAt_17(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
 				return 18;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				Build(context, token);
@@ -901,13 +901,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_18(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 19;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				EndRule(context, RuleType.LookAheadTokenList);
@@ -926,7 +926,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
 		int MatchTokenAt_19(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -944,7 +944,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:2>#Arrow:0
 		int MatchTokenAt_20(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.LookAheadTokenList);
@@ -963,13 +963,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_21(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 19;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_RBracket(token)
 )
 			{
 				EndRule(context, RuleType.LookAheadTokenList);
@@ -988,28 +988,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:4>#RBracket:0
 		int MatchTokenAt_22(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1022,7 +1022,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 13;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1032,7 +1032,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1041,7 +1041,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1050,7 +1050,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1070,7 +1070,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
 		int MatchTokenAt_23(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1082,7 +1082,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 13;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1091,7 +1091,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1099,7 +1099,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1107,7 +1107,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1126,7 +1126,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
 		int MatchTokenAt_24(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1137,7 +1137,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
@@ -1145,14 +1145,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
@@ -1171,13 +1171,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
 		int MatchTokenAt_25(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 26;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -1195,13 +1195,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
 		int MatchTokenAt_26(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				Build(context, token);
@@ -1219,13 +1219,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
 		int MatchTokenAt_27(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 26;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -1243,7 +1243,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
 		int MatchTokenAt_28(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1251,28 +1251,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 29;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1285,7 +1285,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1295,7 +1295,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1304,7 +1304,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1313,7 +1313,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1333,14 +1333,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0
 		int MatchTokenAt_29(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
 				return 30;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				Build(context, token);
@@ -1358,13 +1358,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_30(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 31;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				EndRule(context, RuleType.LookAheadTokenList);
@@ -1383,7 +1383,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
 		int MatchTokenAt_31(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -1401,7 +1401,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0
 		int MatchTokenAt_32(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.LookAheadTokenList);
@@ -1420,13 +1420,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_33(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 31;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_RBracket(token)
 )
 			{
 				EndRule(context, RuleType.LookAheadTokenList);
@@ -1445,28 +1445,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0
 		int MatchTokenAt_34(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1479,7 +1479,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1489,7 +1489,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1498,7 +1498,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1507,7 +1507,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1527,7 +1527,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
 		int MatchTokenAt_35(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1539,7 +1539,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1548,7 +1548,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1556,7 +1556,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1564,7 +1564,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1583,7 +1583,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
 		int MatchTokenAt_36(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1594,7 +1594,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 37;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
@@ -1602,14 +1602,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 48;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
@@ -1628,13 +1628,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
 		int MatchTokenAt_37(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 38;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -1652,13 +1652,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
 		int MatchTokenAt_38(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 39;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				Build(context, token);
@@ -1676,13 +1676,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
 		int MatchTokenAt_39(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 38;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -1700,7 +1700,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
 		int MatchTokenAt_40(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1708,28 +1708,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 41;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1742,7 +1742,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 37;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1752,7 +1752,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 48;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1761,7 +1761,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1770,7 +1770,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1790,14 +1790,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0
 		int MatchTokenAt_41(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
 				return 42;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				Build(context, token);
@@ -1815,13 +1815,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_42(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 43;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				EndRule(context, RuleType.LookAheadTokenList);
@@ -1840,7 +1840,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
 		int MatchTokenAt_43(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -1858,7 +1858,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0
 		int MatchTokenAt_44(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.LookAheadTokenList);
@@ -1877,13 +1877,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_45(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 43;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_RBracket(token)
 )
 			{
 				EndRule(context, RuleType.LookAheadTokenList);
@@ -1902,28 +1902,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0
 		int MatchTokenAt_46(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1936,7 +1936,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 37;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1946,7 +1946,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 48;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1955,7 +1955,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1964,7 +1964,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -1984,7 +1984,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
 		int MatchTokenAt_47(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1996,7 +1996,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 37;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2005,7 +2005,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 48;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2013,7 +2013,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2021,7 +2021,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2040,7 +2040,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
 		int MatchTokenAt_48(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2051,7 +2051,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 49;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
@@ -2059,14 +2059,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 60;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
 				return 61;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
@@ -2085,13 +2085,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
 		int MatchTokenAt_49(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 50;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -2109,13 +2109,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
 		int MatchTokenAt_50(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 51;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				Build(context, token);
@@ -2133,13 +2133,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
 		int MatchTokenAt_51(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 50;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -2157,7 +2157,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
 		int MatchTokenAt_52(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -2165,28 +2165,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 53;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 59;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 59;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 59;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2199,7 +2199,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 49;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -2209,7 +2209,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 60;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -2218,7 +2218,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 61;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -2227,7 +2227,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 61;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -2247,14 +2247,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0
 		int MatchTokenAt_53(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
 				return 54;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				Build(context, token);
@@ -2272,13 +2272,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_54(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 55;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				EndRule(context, RuleType.LookAheadTokenList);
@@ -2297,7 +2297,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
 		int MatchTokenAt_55(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -2315,7 +2315,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0
 		int MatchTokenAt_56(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.LookAheadTokenList);
@@ -2334,13 +2334,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_57(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 55;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_RBracket(token)
 )
 			{
 				EndRule(context, RuleType.LookAheadTokenList);
@@ -2359,28 +2359,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0
 		int MatchTokenAt_58(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 59;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 59;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 59;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2393,7 +2393,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 49;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -2403,7 +2403,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 60;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -2412,7 +2412,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 61;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -2421,7 +2421,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 61;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.LookAhead);
@@ -2441,7 +2441,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
 		int MatchTokenAt_59(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2453,7 +2453,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 49;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2462,7 +2462,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 60;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2470,7 +2470,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 61;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2478,7 +2478,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 61;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2497,32 +2497,32 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
 		int MatchTokenAt_61(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				StartRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 53;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 59;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 59;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 59;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2534,7 +2534,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 49;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2543,7 +2543,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 60;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2551,7 +2551,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 61;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2559,7 +2559,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 61;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2578,7 +2578,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
 		int MatchTokenAt_62(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2586,28 +2586,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 41;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2620,7 +2620,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 37;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2630,7 +2630,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 48;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2639,7 +2639,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2648,7 +2648,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2668,32 +2668,32 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
 		int MatchTokenAt_63(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				StartRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 41;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 47;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2705,7 +2705,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 37;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2714,7 +2714,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 48;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2722,7 +2722,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2730,7 +2730,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 63;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2749,7 +2749,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
 		int MatchTokenAt_64(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2757,28 +2757,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 29;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2791,7 +2791,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2801,7 +2801,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2810,7 +2810,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2819,7 +2819,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2839,32 +2839,32 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
 		int MatchTokenAt_65(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				StartRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 29;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2876,7 +2876,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2885,7 +2885,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2893,7 +2893,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2901,7 +2901,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 65;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -2920,7 +2920,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
 		int MatchTokenAt_66(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2928,28 +2928,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 17;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -2962,7 +2962,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 13;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2972,7 +2972,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2981,7 +2981,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -2990,7 +2990,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				EndRule(context, RuleType.GroupElement);
@@ -3010,32 +3010,32 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
 		int MatchTokenAt_67(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				StartRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 17;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -3047,7 +3047,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 13;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -3056,7 +3056,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -3064,7 +3064,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -3072,7 +3072,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 67;
 			}
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -3091,14 +3091,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:5>#EOL:0
 		int MatchTokenAt_68(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinition);
 				Build(context, token);
 				return 60;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinition);
@@ -3129,7 +3129,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		        queue.Enqueue(token);
 
 		        if (false
-					|| 	TokenMatcher.Match_AlternateOp(token)
+					|| 	context.TokenMatcher.Match_AlternateOp(token)
 
 				)
 		        {
@@ -3137,9 +3137,9 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 					break;
 		        }
 		    } while (false
-				|| 	TokenMatcher.Match_Token(token)
+				|| 	context.TokenMatcher.Match_Token(token)
 
-				|| 	TokenMatcher.Match_Rule(token)
+				|| 	context.TokenMatcher.Match_Rule(token)
 
 			);
 			foreach(var t in queue)

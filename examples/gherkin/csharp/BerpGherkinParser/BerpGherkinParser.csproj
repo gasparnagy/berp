@@ -55,7 +55,8 @@
     <Compile Include="DefaultSourceReader.cs" />
     <Compile Include="DomBuilder.cs" />
     <Compile Include="FastSourceReader.cs" />
-    <Compile Include="GherkinKeywords.cs" />
+    <Compile Include="GherkinDialect.cs" />
+    <Compile Include="GherkinDialectProvider.cs" />
     <Compile Include="ISourceLine.cs" />
     <Compile Include="ISourceReader.cs" />
     <Compile Include="Parser.cs" />
