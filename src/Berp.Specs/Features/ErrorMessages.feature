@@ -7,6 +7,7 @@ Scenario: Expected tokens are listed in the error message
 		//possible correct variations:
 		// Grammar := ... (token: #Definition)
 		// Grammar! ... (token: #Production)
+		// Grammar [... (token: #LBracket)
 		"""
 	And the parser is set to stop at first error
 	When the input source is parsed with the BerpGrammarParserForTest parser
@@ -15,6 +16,7 @@ Scenario: Expected tokens are listed in the error message
 		| expected token |
 		| #Definition    |
 		| #Production    |
+		| #LBracket      |
 
 Scenario: Expected tokens are listed in the error message (distinct)
 	Given the input source

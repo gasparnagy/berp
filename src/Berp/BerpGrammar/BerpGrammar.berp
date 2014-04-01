@@ -6,11 +6,11 @@
 
 
 Grammar! := Settings? RuleDefinition+
-RuleDefinition! := #Rule #Production? #Definition RuleDefinitionElement+ #EOL
-RuleDefinitionElement! := RuleDefinitionElement_Core LookAhead? RuleDefinitionElement_Multiplier?
+RuleDefinition! := #Rule #Production? LookAhead? #Definition RuleDefinitionElement+ #EOL
+RuleDefinitionElement! := RuleDefinitionElement_Core RuleDefinitionElement_Multiplier?
 RuleDefinitionElement_Core := (AlternateElement | TokenElement | RuleElement | GroupElement)
 RuleDefinitionElement_Multiplier := (#AnyMultiplier | #OneOrMoreMultiplier | #OneOrZeroMultiplier)
-AlternateElement! := #LParen[#Token|#Rule->#AlternateOp] AlternateElementBody #RParen
+AlternateElement! [#Token|#Rule->#AlternateOp]:= #LParen AlternateElementBody #RParen
 AlternateElementBody := AlternateElementItem (#AlternateOp AlternateElementItem)*
 AlternateElementItem := (#Rule | #Token)
 GroupElement! := #LParen RuleDefinitionElement+ #RParen

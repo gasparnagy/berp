@@ -47,11 +47,11 @@ _Comma, // #Comma
 _Number, // #Number
 _Other, // #Other
 Grammar, // Grammar! := Settings? RuleDefinition+
-RuleDefinition, // RuleDefinition! := #Rule #Production? #Definition RuleDefinitionElement+ #EOL
-RuleDefinitionElement, // RuleDefinitionElement! := RuleDefinitionElement_Core LookAhead? RuleDefinitionElement_Multiplier?
+RuleDefinition, // RuleDefinition! := #Rule #Production? LookAhead? #Definition RuleDefinitionElement+ #EOL
+RuleDefinitionElement, // RuleDefinitionElement! := RuleDefinitionElement_Core RuleDefinitionElement_Multiplier?
 RuleDefinitionElement_Core, // RuleDefinitionElement_Core := (AlternateElement | TokenElement | RuleElement | GroupElement)
 RuleDefinitionElement_Multiplier, // RuleDefinitionElement_Multiplier := (#AnyMultiplier | #OneOrMoreMultiplier | #OneOrZeroMultiplier)
-AlternateElement, // AlternateElement! := #LParen[#Token|#Rule-&gt;#AlternateOp] AlternateElementBody #RParen
+AlternateElement, // AlternateElement! [#Token|#Rule-&gt;#AlternateOp] := #LParen AlternateElementBody #RParen
 AlternateElementBody, // AlternateElementBody := AlternateElementItem (#AlternateOp AlternateElementItem)*
 AlternateElementItem, // AlternateElementItem := (#Rule | #Token)
 GroupElement, // GroupElement! := #LParen RuleDefinitionElement+ #RParen
@@ -100,37 +100,37 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
     public class Parser
     {
 		public bool StopAtFirstError { get; set;}
-		public TokenMatcher TokenMatcher { get; private set; }
 		public ParserMessageProvider ParserMessageProvider { get; private set; }
 
 		class ParserContext
 		{
 			public TokenScanner TokenScanner { get; set; }
+			public TokenMatcher TokenMatcher { get; set; }
 			public AstBuilder Builder { get; set; }
 			public Queue<Token> TokenQueue { get; set; }
 			public List<ParserError> Errors { get; set; }
 		}
 
-		public Parser() : this(new TokenMatcher(), new ParserMessageProvider())
+		public Parser() : this(new ParserMessageProvider())
 		{
 		}
 
 		public object Parse(TokenScanner tokenScanner)
 		{
-			return Parse(tokenScanner, new AstBuilder());
+			return Parse(tokenScanner, new TokenMatcher(), new AstBuilder());
 		}
 
-		public Parser(TokenMatcher tokenMatcher, ParserMessageProvider parserMessageProvider)
+		public Parser(ParserMessageProvider parserMessageProvider)
 		{
-			this.TokenMatcher = tokenMatcher;
 			this.ParserMessageProvider = parserMessageProvider;
 		}
 
-        public object Parse(TokenScanner tokenScanner, AstBuilder astBuilder)
+        public object Parse(TokenScanner tokenScanner, TokenMatcher tokenMatcher, AstBuilder astBuilder)
 		{
 			var context = new ParserContext
 			{
 				TokenScanner = tokenScanner,
+				TokenMatcher = tokenMatcher,
 				Builder = astBuilder,
 				TokenQueue = new Queue<Token>(),
 				Errors = new List<ParserError>()
@@ -150,7 +150,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				throw new ParserException(ParserMessageProvider, context.Errors.ToArray());
 			}
 
-			if (state != 60)
+			if (state != 42)
 			{
 				throw new InvalidOperationException("One of the grammar rules expected #EOF explicitly.");
 			}
@@ -315,9 +315,6 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				case 41:
 					newState = MatchTokenAt_41(token, context);
 					break;
-				case 42:
-					newState = MatchTokenAt_42(token, context);
-					break;
 				case 43:
 					newState = MatchTokenAt_43(token, context);
 					break;
@@ -342,57 +339,6 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				case 50:
 					newState = MatchTokenAt_50(token, context);
 					break;
-				case 51:
-					newState = MatchTokenAt_51(token, context);
-					break;
-				case 52:
-					newState = MatchTokenAt_52(token, context);
-					break;
-				case 53:
-					newState = MatchTokenAt_53(token, context);
-					break;
-				case 54:
-					newState = MatchTokenAt_54(token, context);
-					break;
-				case 55:
-					newState = MatchTokenAt_55(token, context);
-					break;
-				case 56:
-					newState = MatchTokenAt_56(token, context);
-					break;
-				case 57:
-					newState = MatchTokenAt_57(token, context);
-					break;
-				case 58:
-					newState = MatchTokenAt_58(token, context);
-					break;
-				case 59:
-					newState = MatchTokenAt_59(token, context);
-					break;
-				case 61:
-					newState = MatchTokenAt_61(token, context);
-					break;
-				case 62:
-					newState = MatchTokenAt_62(token, context);
-					break;
-				case 63:
-					newState = MatchTokenAt_63(token, context);
-					break;
-				case 64:
-					newState = MatchTokenAt_64(token, context);
-					break;
-				case 65:
-					newState = MatchTokenAt_65(token, context);
-					break;
-				case 66:
-					newState = MatchTokenAt_66(token, context);
-					break;
-				case 67:
-					newState = MatchTokenAt_67(token, context);
-					break;
-				case 68:
-					newState = MatchTokenAt_68(token, context);
-					break;
 				default:
 					throw new InvalidOperationException("Unknown state: " + state);
 			}
@@ -403,14 +349,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Start
 		int MatchTokenAt_0(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
 				StartRule(context, RuleType.Settings);
 				Build(context, token);
 				return 1;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinition);
@@ -429,7 +375,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:0>__grp5:0>#LBracket:0
 		int MatchTokenAt_1(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				Build(context, token);
@@ -447,14 +393,14 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:0>__grp5:1>#EOL:0
 		int MatchTokenAt_2(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.Parameter);
 				Build(context, token);
 				return 3;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_RBracket(token)
 )
 			{
 				Build(context, token);
@@ -472,7 +418,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:0>#Rule:0
 		int MatchTokenAt_3(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
 				Build(context, token);
@@ -490,13 +436,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:1>#Arrow:0
 		int MatchTokenAt_4(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 5;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -514,13 +460,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:2>ParameterValue:0>__alt8:0>#Rule:0
 		int MatchTokenAt_5(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Comma(token)
+			if (	context.TokenMatcher.Match_Comma(token)
 )
 			{
 				Build(context, token);
 				return 6;
 			}
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				Build(context, token);
@@ -538,13 +484,13 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:3>__grp7:0>#Comma:0
 		int MatchTokenAt_6(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 5;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
@@ -562,7 +508,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:1>Parameter:4>#EOL:0
 		int MatchTokenAt_7(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.Parameter);
@@ -570,7 +516,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 3;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_RBracket(token)
 )
 			{
 				EndRule(context, RuleType.Parameter);
@@ -589,7 +535,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:2>__grp6:0>#RBracket:0
 		int MatchTokenAt_8(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				Build(context, token);
@@ -607,7 +553,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:0>Settings:2>__grp6:1>#EOL:0
 		int MatchTokenAt_9(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.Settings);
@@ -627,19 +573,26 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:0>#Rule:0
 		int MatchTokenAt_10(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Production(token)
+			if (	context.TokenMatcher.Match_Production(token)
 )
 			{
 				Build(context, token);
 				return 11;
 			}
-			if (	TokenMatcher.Match_Definition(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
+				StartRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 12;
 			}
-				var error = new ParserError(token, new string[] {"#Production", "#Definition"}, "State: 10 - Grammar:1>RuleDefinition:0>#Rule:0");
+			if (	context.TokenMatcher.Match_Definition(token)
+)
+			{
+				Build(context, token);
+				return 18;
+			}
+				var error = new ParserError(token, new string[] {"#Production", "#LBracket", "#Definition"}, "State: 10 - Grammar:1>RuleDefinition:0>#Rule:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -651,13 +604,20 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		// Grammar:1>RuleDefinition:1>#Production:0
 		int MatchTokenAt_11(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Definition(token)
+			if (	context.TokenMatcher.Match_LBracket(token)
 )
 			{
+				StartRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 12;
 			}
-				var error = new ParserError(token, new string[] {"#Definition"}, "State: 11 - Grammar:1>RuleDefinition:1>#Production:0");
+			if (	context.TokenMatcher.Match_Definition(token)
+)
+			{
+				Build(context, token);
+				return 18;
+			}
+				var error = new ParserError(token, new string[] {"#LBracket", "#Definition"}, "State: 11 - Grammar:1>RuleDefinition:1>#Production:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -666,43 +626,23 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:2>#Definition:0
+		// Grammar:1>RuleDefinition:2>LookAhead:0>#LBracket:0
 		int MatchTokenAt_12(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
-				if (LookAhead_0(context, token))
-				{
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
+				StartRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
 				return 13;
-				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 24;
+				return 15;
 			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 67;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 67;
-			}
-				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 12 - Grammar:1>RuleDefinition:2>#Definition:0");
+				var error = new ParserError(token, new string[] {"#Token", "#Arrow"}, "State: 12 - Grammar:1>RuleDefinition:2>LookAhead:0>#LBracket:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -711,22 +651,23 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
+		// Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_13(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 14;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Arrow(token)
 )
 			{
+				EndRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
-				return 14;
+				return 15;
 			}
-				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 13 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#Arrow"}, "State: 13 - Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList:0>#Token:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -735,22 +676,16 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
+		// Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
 		int MatchTokenAt_14(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
-				return 15;
+				return 13;
 			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				Build(context, token);
-				return 16;
-			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 14 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 14 - Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -759,22 +694,17 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
+		// Grammar:1>RuleDefinition:2>LookAhead:2>#Arrow:0
 		int MatchTokenAt_15(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
+				StartRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
-				return 14;
+				return 16;
 			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				Build(context, token);
-				return 14;
-			}
-				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 15 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Token"}, "State: 15 - Grammar:1>RuleDefinition:2>LookAhead:2>#Arrow:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -783,88 +713,23 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
+		// Grammar:1>RuleDefinition:2>LookAhead:3>LookAheadTokenList:0>#Token:0
 		int MatchTokenAt_16(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
-				EndRule(context, RuleType.AlternateElement);
-				StartRule(context, RuleType.LookAhead);
+				Build(context, token);
+				return 14;
+			}
+			if (	context.TokenMatcher.Match_RBracket(token)
+)
+			{
+				EndRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
 				return 17;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 23;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 23;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 23;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 13;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 24;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 67;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 67;
-			}
-			if (	TokenMatcher.Match_EOL(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 68;
-			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 16 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RBracket"}, "State: 16 - Grammar:1>RuleDefinition:2>LookAhead:3>LookAheadTokenList:0>#Token:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -873,23 +738,17 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:0>#LBracket:0
+		// Grammar:1>RuleDefinition:2>LookAhead:4>#RBracket:0
 		int MatchTokenAt_17(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Definition(token)
 )
 			{
-				StartRule(context, RuleType.LookAheadTokenList);
+				EndRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 18;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
-)
-			{
-				Build(context, token);
-				return 20;
-			}
-				var error = new ParserError(token, new string[] {"#Token", "#Arrow"}, "State: 17 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+				var error = new ParserError(token, new string[] {"#Definition"}, "State: 17 - Grammar:1>RuleDefinition:2>LookAhead:4>#RBracket:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -898,23 +757,43 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0
+		// Grammar:1>RuleDefinition:3>#Definition:0
 		int MatchTokenAt_18(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
+				if (LookAhead_0(context, token))
+				{
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 19;
+				}
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
-				EndRule(context, RuleType.LookAheadTokenList);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 20;
+				return 24;
 			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#Arrow"}, "State: 18 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 49;
+			}
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 49;
+			}
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 18 - Grammar:1>RuleDefinition:3>#Definition:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -923,16 +802,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
+		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
 		int MatchTokenAt_19(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
-				return 18;
+				return 20;
 			}
-				var error = new ParserError(token, new string[] {"#Token"}, "State: 19 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				Build(context, token);
+				return 20;
+			}
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 19 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -941,17 +826,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:2>#Arrow:0
+		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
 		int MatchTokenAt_20(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
-				StartRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
 				return 21;
 			}
-				var error = new ParserError(token, new string[] {"#Token"}, "State: 20 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+			if (	context.TokenMatcher.Match_RParen(token)
+)
+			{
+				Build(context, token);
+				return 22;
+			}
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 20 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -960,23 +850,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0
+		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
 		int MatchTokenAt_21(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
-				return 19;
+				return 20;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
-				EndRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
-				return 22;
+				return 20;
 			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#RBracket"}, "State: 21 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 21 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -985,80 +874,80 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:4>#RBracket:0
+		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
 		int MatchTokenAt_22(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 23;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
 				{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 13;
+				return 19;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 67;
+				return 49;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 67;
+				return 49;
 			}
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 68;
+				return 50;
 			}
-				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 22 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 22 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1067,10 +956,10 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:3>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
+		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
 		int MatchTokenAt_23(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1079,10 +968,10 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 13;
+				return 19;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1091,30 +980,30 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 24;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 67;
+				return 49;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 67;
+				return 49;
 			}
-			if (	TokenMatcher.Match_EOL(token)
+			if (	context.TokenMatcher.Match_EOL(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 68;
+				return 50;
 			}
-				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#EOL"}, "State: 23 - Grammar:1>RuleDefinition:3>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#EOL"}, "State: 23 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1123,10 +1012,10 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
 		int MatchTokenAt_24(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1137,29 +1026,29 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 36;
+				return 30;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 65;
+				return 47;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 65;
+				return 47;
 			}
-				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 24 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 24 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1168,22 +1057,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
 		int MatchTokenAt_25(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 26;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
 				return 26;
 			}
-				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 25 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 25 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1192,22 +1081,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
 		int MatchTokenAt_26(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 27;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				Build(context, token);
 				return 28;
 			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 26 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 26 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1216,22 +1105,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
 		int MatchTokenAt_27(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 26;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
 				return 26;
 			}
-				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 27 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 27 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1240,39 +1129,31 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
 		int MatchTokenAt_28(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
-				StartRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 29;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 35;
+				return 29;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 35;
+				return 29;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 35;
-			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1285,7 +1166,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1293,35 +1174,35 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 36;
+				return 30;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 65;
+				return 47;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 65;
+				return 47;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 66;
+				return 48;
 			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 28 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 28 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1330,23 +1211,54 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
 		int MatchTokenAt_29(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
-				StartRule(context, RuleType.LookAheadTokenList);
+				if (LookAhead_0(context, token))
+				{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.AlternateElement);
+				Build(context, token);
+				return 25;
+				}
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 30;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 32;
+				return 47;
 			}
-				var error = new ParserError(token, new string[] {"#Token", "#Arrow"}, "State: 29 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 47;
+			}
+			if (	context.TokenMatcher.Match_RParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 48;
+			}
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#RParen"}, "State: 29 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1355,23 +1267,43 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
 		int MatchTokenAt_30(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
+				if (LookAhead_0(context, token))
+				{
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 31;
+				}
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
-				EndRule(context, RuleType.LookAheadTokenList);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 32;
+				return 36;
 			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#Arrow"}, "State: 30 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 45;
+			}
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 45;
+			}
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 30 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1380,16 +1312,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
 		int MatchTokenAt_31(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
-				return 30;
+				return 32;
 			}
-				var error = new ParserError(token, new string[] {"#Token"}, "State: 31 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				Build(context, token);
+				return 32;
+			}
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 31 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1398,17 +1336,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
 		int MatchTokenAt_32(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
-				StartRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
 				return 33;
 			}
-				var error = new ParserError(token, new string[] {"#Token"}, "State: 32 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+			if (	context.TokenMatcher.Match_RParen(token)
+)
+			{
+				Build(context, token);
+				return 34;
+			}
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 32 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1417,23 +1360,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
 		int MatchTokenAt_33(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
-				return 31;
+				return 32;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
-				EndRule(context, RuleType.LookAheadTokenList);
 				Build(context, token);
-				return 34;
+				return 32;
 			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#RBracket"}, "State: 33 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 33 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1442,80 +1384,80 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
 		int MatchTokenAt_34(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
 				return 35;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
 				{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 25;
+				return 31;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 65;
+				return 45;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 65;
+				return 45;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 66;
+				return 46;
 			}
-				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 34 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 34 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1524,10 +1466,10 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
 		int MatchTokenAt_35(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1536,10 +1478,10 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 25;
+				return 31;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
@@ -1548,30 +1490,30 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 36;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 65;
+				return 45;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 65;
+				return 45;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 66;
+				return 46;
 			}
-				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#RParen"}, "State: 35 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#RParen"}, "State: 35 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1580,10 +1522,10 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
 		int MatchTokenAt_36(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1594,29 +1536,29 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 37;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 48;
+				return 42;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 63;
+				return 43;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 63;
+				return 43;
 			}
-				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 36 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 36 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1625,22 +1567,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
 		int MatchTokenAt_37(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 38;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
 				return 38;
 			}
-				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 37 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 37 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1649,22 +1591,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
 		int MatchTokenAt_38(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AlternateOp(token)
 )
 			{
 				Build(context, token);
 				return 39;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				Build(context, token);
 				return 40;
 			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 38 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
+				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 38 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1673,22 +1615,22 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
 		int MatchTokenAt_39(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				Build(context, token);
 				return 38;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				Build(context, token);
 				return 38;
 			}
-				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 39 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
+				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 39 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1697,39 +1639,31 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
 		int MatchTokenAt_40(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LBracket(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
-				StartRule(context, RuleType.LookAhead);
 				Build(context, token);
 				return 41;
 			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 47;
+				return 41;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 47;
+				return 41;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 47;
-			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1742,7 +1676,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				return 37;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
@@ -1750,35 +1684,35 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 48;
+				return 42;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 63;
+				return 43;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 63;
+				return 43;
 			}
-			if (	TokenMatcher.Match_RParen(token)
+			if (	context.TokenMatcher.Match_RParen(token)
 )
 			{
 				EndRule(context, RuleType.AlternateElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 64;
+				return 44;
 			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 40 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 40 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1787,23 +1721,54 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
 		int MatchTokenAt_41(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
-				StartRule(context, RuleType.LookAheadTokenList);
+				if (LookAhead_0(context, token))
+				{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.AlternateElement);
+				Build(context, token);
+				return 37;
+				}
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 42;
 			}
-			if (	TokenMatcher.Match_Arrow(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 43;
+			}
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 43;
+			}
+			if (	context.TokenMatcher.Match_RParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
 				return 44;
 			}
-				var error = new ParserError(token, new string[] {"#Token", "#Arrow"}, "State: 41 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
+				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#RParen"}, "State: 41 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1812,41 +1777,72 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0
-		int MatchTokenAt_42(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_AlternateOp(token)
-)
-			{
-				Build(context, token);
-				return 43;
-			}
-			if (	TokenMatcher.Match_Arrow(token)
-)
-			{
-				EndRule(context, RuleType.LookAheadTokenList);
-				Build(context, token);
-				return 44;
-			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#Arrow"}, "State: 42 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 42;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
 		int MatchTokenAt_43(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
+				Build(context, token);
+				return 41;
+			}
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
+)
+			{
+				Build(context, token);
+				return 41;
+			}
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
+)
+			{
+				Build(context, token);
+				return 41;
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				if (LookAhead_0(context, token))
+				{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.AlternateElement);
+				Build(context, token);
+				return 37;
+				}
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
 				return 42;
 			}
-				var error = new ParserError(token, new string[] {"#Token"}, "State: 43 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 43;
+			}
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 43;
+			}
+			if (	context.TokenMatcher.Match_RParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 44;
+			}
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 43 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1855,17 +1851,80 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
 		int MatchTokenAt_44(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
-				StartRule(context, RuleType.LookAheadTokenList);
+				EndRule(context, RuleType.GroupElement);
+				Build(context, token);
+				return 35;
+			}
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				Build(context, token);
+				return 35;
+			}
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				Build(context, token);
+				return 35;
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				if (LookAhead_0(context, token))
+				{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.AlternateElement);
+				Build(context, token);
+				return 31;
+				}
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.GroupElement);
+				Build(context, token);
+				return 36;
+			}
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
 				return 45;
 			}
-				var error = new ParserError(token, new string[] {"#Token"}, "State: 44 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 45;
+			}
+			if (	context.TokenMatcher.Match_RParen(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 46;
+			}
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 44 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1874,23 +1933,72 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
 		int MatchTokenAt_45(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				Build(context, token);
-				return 43;
+				return 35;
 			}
-			if (	TokenMatcher.Match_RBracket(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAheadTokenList);
+				Build(context, token);
+				return 35;
+			}
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
+)
+			{
+				Build(context, token);
+				return 35;
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				if (LookAhead_0(context, token))
+				{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.AlternateElement);
+				Build(context, token);
+				return 31;
+				}
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.GroupElement);
+				Build(context, token);
+				return 36;
+			}
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 45;
+			}
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 45;
+			}
+			if (	context.TokenMatcher.Match_RParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
 				return 46;
 			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#RBracket"}, "State: 45 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 45 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1899,80 +2007,80 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
 		int MatchTokenAt_46(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AnyMultiplier(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 47;
+				return 29;
 			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 47;
+				return 29;
 			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 47;
+				return 29;
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
 				{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.GroupElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 37;
+				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
-				EndRule(context, RuleType.LookAhead);
+				EndRule(context, RuleType.GroupElement);
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
+				return 30;
+			}
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 47;
+			}
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 47;
+			}
+			if (	context.TokenMatcher.Match_RParen(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
 				return 48;
 			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 63;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 63;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 64;
-			}
-				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 46 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 46 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -1981,10 +2089,28 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
 		int MatchTokenAt_47(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
+)
+			{
+				Build(context, token);
+				return 29;
+			}
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
+)
+			{
+				Build(context, token);
+				return 29;
+			}
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
+)
+			{
+				Build(context, token);
+				return 29;
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
@@ -1993,42 +2119,42 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 37;
+				return 25;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
+				return 30;
+			}
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 47;
+			}
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 47;
+			}
+			if (	context.TokenMatcher.Match_RParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
 				return 48;
 			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 63;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 63;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 64;
-			}
-				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#RParen"}, "State: 47 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 47 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -2037,43 +2163,80 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
 		int MatchTokenAt_48(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				Build(context, token);
+				return 23;
+			}
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				Build(context, token);
+				return 23;
+			}
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				Build(context, token);
+				return 23;
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
 				if (LookAhead_0(context, token))
 				{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.AlternateElement);
 				Build(context, token);
-				return 49;
+				return 19;
 				}
 			}
-			if (	TokenMatcher.Match_LParen(token)
+			if (	context.TokenMatcher.Match_LParen(token)
 )
 			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.GroupElement);
 				Build(context, token);
-				return 60;
+				return 24;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_Token(token)
 )
 			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 61;
+				return 49;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
 				StartRule(context, RuleType.RuleDefinitionElement);
 				Build(context, token);
-				return 61;
+				return 49;
 			}
-				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule"}, "State: 48 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0");
+			if (	context.TokenMatcher.Match_EOL(token)
+)
+			{
+				EndRule(context, RuleType.GroupElement);
+				EndRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 50;
+			}
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 48 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -2082,22 +2245,72 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
+		// Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
 		int MatchTokenAt_49(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_AnyMultiplier(token)
 )
 			{
 				Build(context, token);
-				return 50;
+				return 23;
 			}
-			if (	TokenMatcher.Match_Token(token)
+			if (	context.TokenMatcher.Match_OneOrMoreMultiplier(token)
 )
 			{
 				Build(context, token);
+				return 23;
+			}
+			if (	context.TokenMatcher.Match_OneOrZeroMultiplier(token)
+)
+			{
+				Build(context, token);
+				return 23;
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				if (LookAhead_0(context, token))
+				{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.AlternateElement);
+				Build(context, token);
+				return 19;
+				}
+			}
+			if (	context.TokenMatcher.Match_LParen(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.GroupElement);
+				Build(context, token);
+				return 24;
+			}
+			if (	context.TokenMatcher.Match_Token(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 49;
+			}
+			if (	context.TokenMatcher.Match_Rule(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				StartRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
+				return 49;
+			}
+			if (	context.TokenMatcher.Match_EOL(token)
+)
+			{
+				EndRule(context, RuleType.RuleDefinitionElement);
+				Build(context, token);
 				return 50;
 			}
-				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 49 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0");
+				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 49 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
@@ -2106,999 +2319,17 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		}
 		
 		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
+		// Grammar:1>RuleDefinition:6>#EOL:0
 		int MatchTokenAt_50(Token token, ParserContext context)
 		{
-			if (	TokenMatcher.Match_AlternateOp(token)
-)
-			{
-				Build(context, token);
-				return 51;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				Build(context, token);
-				return 52;
-			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#RParen"}, "State: 50 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 50;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
-		int MatchTokenAt_51(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				Build(context, token);
-				return 50;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				Build(context, token);
-				return 50;
-			}
-				var error = new ParserError(token, new string[] {"#Rule", "#Token"}, "State: 51 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 51;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
-		int MatchTokenAt_52(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_LBracket(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				StartRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 53;
-			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 59;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 59;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 59;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 49;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 60;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 61;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 61;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.AlternateElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 62;
-			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 52 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 52;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0
-		int MatchTokenAt_53(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				StartRule(context, RuleType.LookAheadTokenList);
-				Build(context, token);
-				return 54;
-			}
-			if (	TokenMatcher.Match_Arrow(token)
-)
-			{
-				Build(context, token);
-				return 56;
-			}
-				var error = new ParserError(token, new string[] {"#Token", "#Arrow"}, "State: 53 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:0>#LBracket:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 53;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0
-		int MatchTokenAt_54(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_AlternateOp(token)
-)
-			{
-				Build(context, token);
-				return 55;
-			}
-			if (	TokenMatcher.Match_Arrow(token)
-)
-			{
-				EndRule(context, RuleType.LookAheadTokenList);
-				Build(context, token);
-				return 56;
-			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#Arrow"}, "State: 54 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:0>#Token:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 54;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
-		int MatchTokenAt_55(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				Build(context, token);
-				return 54;
-			}
-				var error = new ParserError(token, new string[] {"#Token"}, "State: 55 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 55;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0
-		int MatchTokenAt_56(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				StartRule(context, RuleType.LookAheadTokenList);
-				Build(context, token);
-				return 57;
-			}
-				var error = new ParserError(token, new string[] {"#Token"}, "State: 56 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:2>#Arrow:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 56;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0
-		int MatchTokenAt_57(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_AlternateOp(token)
-)
-			{
-				Build(context, token);
-				return 55;
-			}
-			if (	TokenMatcher.Match_RBracket(token)
-)
-			{
-				EndRule(context, RuleType.LookAheadTokenList);
-				Build(context, token);
-				return 58;
-			}
-				var error = new ParserError(token, new string[] {"#AlternateOp", "#RBracket"}, "State: 57 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:3>LookAheadTokenList:0>#Token:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 57;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0
-		int MatchTokenAt_58(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 59;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 59;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 59;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.LookAhead);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 49;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 60;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 61;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 61;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.LookAhead);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 62;
-			}
-				var error = new ParserError(token, new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 58 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>LookAhead:4>#RBracket:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 58;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
-		int MatchTokenAt_59(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 49;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 60;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 61;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 61;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 62;
-			}
-				var error = new ParserError(token, new string[] {"#LParen", "#Token", "#Rule", "#RParen"}, "State: 59 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:2>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 59;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
-		int MatchTokenAt_61(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_LBracket(token)
-)
-			{
-				StartRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 53;
-			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 59;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 59;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 59;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 49;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 60;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 61;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 61;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 62;
-			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 61 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 61;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
-		int MatchTokenAt_62(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_LBracket(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				StartRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 41;
-			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 47;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 47;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 47;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 37;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 48;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 63;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 63;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 64;
-			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 62 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 62;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
-		int MatchTokenAt_63(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_LBracket(token)
-)
-			{
-				StartRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 41;
-			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 47;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 47;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 47;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 37;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 48;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 63;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 63;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 64;
-			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 63 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 63;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
-		int MatchTokenAt_64(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_LBracket(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				StartRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 29;
-			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 35;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 35;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 35;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 25;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 36;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 65;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 65;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 66;
-			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 64 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 64;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
-		int MatchTokenAt_65(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_LBracket(token)
-)
-			{
-				StartRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 29;
-			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 35;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 35;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 35;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 25;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 36;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 65;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 65;
-			}
-			if (	TokenMatcher.Match_RParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 66;
-			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"}, "State: 65 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 65;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
-		int MatchTokenAt_66(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_LBracket(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				StartRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 17;
-			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 23;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 23;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 23;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 13;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 24;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 67;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 67;
-			}
-			if (	TokenMatcher.Match_EOL(token)
-)
-			{
-				EndRule(context, RuleType.GroupElement);
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 68;
-			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 66 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 66;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
-		int MatchTokenAt_67(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_LBracket(token)
-)
-			{
-				StartRule(context, RuleType.LookAhead);
-				Build(context, token);
-				return 17;
-			}
-			if (	TokenMatcher.Match_AnyMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 23;
-			}
-			if (	TokenMatcher.Match_OneOrMoreMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 23;
-			}
-			if (	TokenMatcher.Match_OneOrZeroMultiplier(token)
-)
-			{
-				Build(context, token);
-				return 23;
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				if (LookAhead_0(context, token))
-				{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.AlternateElement);
-				Build(context, token);
-				return 13;
-				}
-			}
-			if (	TokenMatcher.Match_LParen(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.GroupElement);
-				Build(context, token);
-				return 24;
-			}
-			if (	TokenMatcher.Match_Token(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 67;
-			}
-			if (	TokenMatcher.Match_Rule(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				StartRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 67;
-			}
-			if (	TokenMatcher.Match_EOL(token)
-)
-			{
-				EndRule(context, RuleType.RuleDefinitionElement);
-				Build(context, token);
-				return 68;
-			}
-				var error = new ParserError(token, new string[] {"#LBracket", "#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"}, "State: 67 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0");
-	if (StopAtFirstError)
-		throw new ParserException(ParserMessageProvider, error);
-	context.Errors.Add(error);
-	return 67;
-
-		}
-		
-		
-		// Grammar:1>RuleDefinition:5>#EOL:0
-		int MatchTokenAt_68(Token token, ParserContext context)
-		{
-			if (	TokenMatcher.Match_EOF(token)
+			if (	context.TokenMatcher.Match_EOF(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinition);
 				Build(context, token);
-				return 60;
+				return 42;
 			}
-			if (	TokenMatcher.Match_Rule(token)
+			if (	context.TokenMatcher.Match_Rule(token)
 )
 			{
 				EndRule(context, RuleType.RuleDefinition);
@@ -3106,11 +2337,11 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 				Build(context, token);
 				return 10;
 			}
-				var error = new ParserError(token, new string[] {"#EOF", "#Rule"}, "State: 68 - Grammar:1>RuleDefinition:5>#EOL:0");
+				var error = new ParserError(token, new string[] {"#EOF", "#Rule"}, "State: 50 - Grammar:1>RuleDefinition:6>#EOL:0");
 	if (StopAtFirstError)
 		throw new ParserException(ParserMessageProvider, error);
 	context.Errors.Add(error);
-	return 68;
+	return 50;
 
 		}
 		
@@ -3129,7 +2360,7 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 		        queue.Enqueue(token);
 
 		        if (false
-					|| 	TokenMatcher.Match_AlternateOp(token)
+					|| 	context.TokenMatcher.Match_AlternateOp(token)
 
 				)
 		        {
@@ -3137,9 +2368,9 @@ ParameterValue, // ParameterValue := (#Rule | #Token)
 					break;
 		        }
 		    } while (false
-				|| 	TokenMatcher.Match_Token(token)
+				|| 	context.TokenMatcher.Match_Token(token)
 
-				|| 	TokenMatcher.Match_Rule(token)
+				|| 	context.TokenMatcher.Match_Rule(token)
 
 			);
 			foreach(var t in queue)

@@ -16,7 +16,6 @@ namespace Berp.BerpGrammar
                 case RuleType.RuleDefinitionElement:
                 {
                     var core = astNode.GetAllSubNodes().First();
-                    var lookAhead = astNode.GetAllSubNodes().OfType<LookAheadHint>().FirstOrDefault();
                     var multiplierToken = astNode.GetAllSubNodes().Skip(1).OfType<Token>().FirstOrDefault();
                     var multiplier = Multilicator.One;
                     if (multiplierToken != null)
@@ -28,8 +27,6 @@ namespace Berp.BerpGrammar
                                     ? Multilicator.OneOrZero
                                     : Multilicator.One;
                     var ruleElement = new RuleElement(core is Rule ? ((Rule) core).Name : ((Token)core).Text, multiplier);
-                    if (lookAhead != null)
-                        ruleElement.LookAhead(lookAhead);
                     return ruleElement;
                 }
 
@@ -64,10 +61,12 @@ namespace Berp.BerpGrammar
                     var ruleElements = astNode.GetAllSubNodes().OfType<RuleElement>().ToArray();
                     var ruleName = ((Token) astNode.GetAllSubNodes().First()).Text;
                     var isProduction = astNode.GetAllSubNodes().Skip(1).OfType<Token>().Any(t => t.TokenType == TokenType.Production);
+                    var lookAhead = astNode.GetAllSubNodes().OfType<LookAheadHint>().FirstOrDefault();
                     var rule = firstRule ? new StartRule(ruleName, ruleElements) : new SequenceRule(ruleName, ruleElements);
                     if (!isProduction)
                         rule.IgnoreProduction();
-                    
+
+                    rule.LookAheadHint = lookAhead;
                     firstRule = false;
                     return rule;
                 }

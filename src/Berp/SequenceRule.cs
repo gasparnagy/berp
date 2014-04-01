@@ -8,7 +8,6 @@ namespace Berp
     public class SequenceRule : DerivedRule
     {
         private RuleElement[] originalRuleElements = null;
-
         public SequenceRule(string name, params RuleElement[] ruleElements) : base(name, ruleElements)
         {
         }

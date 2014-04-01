@@ -71,12 +71,12 @@ this.ScenarioSetup(scenarioInfo);
 #line hidden
 #line 4
  testRunner.Given("the input source", "Grammar dummy\n//possible correct variations:\n// Grammar := ... (token: #Definitio" +
-                    "n)\n// Grammar! ... (token: #Production)", ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 11
- testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+                    "n)\n// Grammar! ... (token: #Production)\n// Grammar [... (token: #LBracket)", ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 12
- testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 13
+ testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 14
  testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
@@ -85,26 +85,28 @@ this.ScenarioSetup(scenarioInfo);
                         "#Definition"});
             table1.AddRow(new string[] {
                         "#Production"});
-#line 14
+            table1.AddRow(new string[] {
+                        "#LBracket"});
+#line 15
  testRunner.And("the error should contain the expected tokens", ((string)(null)), table1, "And ");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Expected tokens are listed in the error message (distinct)", SourceLine=18)]
+        [TechTalk.SpecRun.ScenarioAttribute("Expected tokens are listed in the error message (distinct)", SourceLine=20)]
         public virtual void ExpectedTokensAreListedInTheErrorMessageDistinct()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Expected tokens are listed in the error message (distinct)", ((string[])(null)));
-#line 19
+#line 21
 this.ScenarioSetup(scenarioInfo);
 #line hidden
-#line 20
+#line 22
  testRunner.Given("the input source", "Grammar := ", ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 24
- testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 25
- testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 26
+ testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 27
+ testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 28
  testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
@@ -115,94 +117,94 @@ this.ScenarioSetup(scenarioInfo);
                         "#Token"});
             table2.AddRow(new string[] {
                         "#Rule"});
-#line 27
+#line 29
  testRunner.And("the error should contain the expected tokens", ((string)(null)), table2, "And ");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Received token is in the error message", SourceLine=32)]
+        [TechTalk.SpecRun.ScenarioAttribute("Received token is in the error message", SourceLine=34)]
         public virtual void ReceivedTokenIsInTheErrorMessage()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Received token is in the error message", ((string[])(null)));
-#line 33
+#line 35
 this.ScenarioSetup(scenarioInfo);
 #line hidden
-#line 34
+#line 36
  testRunner.Given("the input source", "Grammar |\n//possible correct variations:\n// Grammar := ... (token: #Definition)\n/" +
                     "/ Grammar! ... (token: #Production)", ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 41
- testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 42
- testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 43
- testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 44
+ testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 45
+ testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 46
  testRunner.And("the error should contain the received token #AlternateOp", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Should handle unexpected end of file", SourceLine=45)]
+        [TechTalk.SpecRun.ScenarioAttribute("Should handle unexpected end of file", SourceLine=47)]
         public virtual void ShouldHandleUnexpectedEndOfFile()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should handle unexpected end of file", ((string[])(null)));
-#line 46
+#line 48
 this.ScenarioSetup(scenarioInfo);
 #line hidden
-#line 47
+#line 49
  testRunner.Given("the input source", "//there must be at least one grammar rule in the file\n[\n]", ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 53
- testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 54
- testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 55
- testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 56
+ testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 57
+ testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 58
  testRunner.And("the error should be an unexpected end of file error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Should include line numbers into the parsing errors", SourceLine=57)]
+        [TechTalk.SpecRun.ScenarioAttribute("Should include line numbers into the parsing errors", SourceLine=59)]
         public virtual void ShouldIncludeLineNumbersIntoTheParsingErrors()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should include line numbers into the parsing errors", ((string[])(null)));
-#line 58
+#line 60
 this.ScenarioSetup(scenarioInfo);
 #line hidden
-#line 59
+#line 61
  testRunner.Given("the input source", "// comment to increase the line number\nGrammar dummy\n//possible correct variation" +
                     "s:\n// Grammar := ... (token: #Definition)\n// Grammar! ... (token: #Production)", ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 67
- testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 68
- testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 69
- testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 70
+ testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 71
+ testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 72
  testRunner.And("the error should contain the line number 2", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [TechTalk.SpecRun.ScenarioAttribute("Should include line position numbers into the parsing errors", SourceLine=71)]
+        [TechTalk.SpecRun.ScenarioAttribute("Should include line position numbers into the parsing errors", SourceLine=73)]
         public virtual void ShouldIncludeLinePositionNumbersIntoTheParsingErrors()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Should include line position numbers into the parsing errors", ((string[])(null)));
-#line 72
+#line 74
 this.ScenarioSetup(scenarioInfo);
 #line hidden
-#line 73
+#line 75
  testRunner.Given("the input source", "G dummy\n//possible correct variations:\n// G := ... (token: #Definition)\n// G! ..." +
                     " (token: #Production)", ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 80
- testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 81
- testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 82
- testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.And("the parser is set to stop at first error", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 83
+ testRunner.When("the input source is parsed with the BerpGrammarParserForTest parser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 84
+ testRunner.Then("the parsing should fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 85
  testRunner.And("the error should contain the line position number 3", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             this.ScenarioCleanup();

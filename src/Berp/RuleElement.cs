@@ -8,7 +8,6 @@ namespace Berp
         private readonly string ruleName;
         private readonly Multilicator multilicator;
         private Rule resolvedRule;
-        private LookAheadHint lookAheadHint;
 
         public string RuleName
         {
@@ -24,11 +23,6 @@ namespace Berp
         public Multilicator Multilicator
         {
             get { return multilicator; }
-        }
-
-        public LookAheadHint LookAheadHint
-        {
-            get { return lookAheadHint; }
         }
 
         public RuleElement(TokenType tokenType, Multilicator multilicator = Multilicator.One) : this("#" + tokenType, multilicator)
@@ -48,8 +42,6 @@ namespace Berp
             {
                 throw new Exception("Unable to resolve rule: " + ruleName);
             }
-            if (lookAheadHint != null)
-                ruleSet.Resolve(lookAheadHint);
         }
 
         public override string ToString()
@@ -76,11 +68,6 @@ namespace Berp
                     break;
             }
 
-            if (lookAheadHint != null)
-            {
-                postFix = string.Format("[{1}->{2}]{0}", postFix, string.Join("|", lookAheadHint.Skip.Select(t => "#" + t.Name)), string.Join("|", lookAheadHint.ExpectedTokens.Select(t => "#" + t.Name)));
-            }
-
             if (embedNonProductionRules && resolvedRule != null && resolvedRule.TempRule)
             {
                 if ((multilicator == Multilicator.One && resolvedRule is SequenceRule && ((SequenceRule)resolvedRule).RuleElements.Length == 1) || resolvedRule is AlternateRule)
@@ -90,17 +77,6 @@ namespace Berp
             }
 
             return ruleName + postFix;
-        }
-
-        public RuleElement LookAhead(TokenType expectedToken, TokenType[] skip)
-        {
-            lookAheadHint = new LookAheadHint(expectedToken, skip);
-            return this;
-        }
-
-        public void LookAhead(LookAheadHint hint)
-        {
-            lookAheadHint = hint;
         }
     }
 }

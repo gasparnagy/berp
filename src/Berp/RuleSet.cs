@@ -106,7 +106,7 @@ namespace Berp
             return this.SingleOrDefault(r => r.Name == ruleName);
         }
 
-        public void Resolve(LookAheadHint lookAheadHint)
+        private void Resolve(LookAheadHint lookAheadHint)
         {
             lookAheadHint.Id = lookAheadHints.Count;
             lookAheadHints.Add(lookAheadHint);
@@ -117,6 +117,9 @@ namespace Berp
             foreach (var rule in this)
             {
                 rule.Resolve(this);
+
+                if (rule.LookAheadHint != null)
+                    Resolve(rule.LookAheadHint);
             }
         }
 

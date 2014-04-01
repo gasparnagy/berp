@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace Berp
 {
@@ -8,6 +9,7 @@ namespace Berp
         private bool tempRule = false;
         private bool allowProductionRules = true;
         public abstract string Name { get; }
+        public LookAheadHint LookAheadHint { get; set; }
 
         public bool AllowProductionRules
         {
@@ -41,9 +43,15 @@ namespace Berp
 
         public virtual string ToString(bool embedNonProductionRules)
         {
+            var result = new StringBuilder(Name);
             if (AllowProductionRules)
-                return string.Format("{0}! := {1}", Name, GetRuleDescription(embedNonProductionRules));
-            return string.Format("{0} := {1}", Name, GetRuleDescription(embedNonProductionRules));
+                result.Append("!");
+            if (LookAheadHint != null)
+                result.AppendFormat(" [{0}->{1}]", string.Join("|", LookAheadHint.Skip.Select(t => "#" + t.Name)), string.Join("|", LookAheadHint.ExpectedTokens.Select(t => "#" + t.Name)));
+
+            result.Append(" := ");
+            result.Append(GetRuleDescription(embedNonProductionRules));
+            return result.ToString();
         }
 
         public abstract void Resolve(RuleSet ruleSet);

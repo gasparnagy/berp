@@ -35,6 +35,7 @@ namespace Berp
         private static List<Branch> GetBranchesInSubRules(CallStackItem caller, out bool ruleCanFinish, List<ProductionRule> productions, LookAheadHint lookAheadHint = null)
         {
             var result = new List<Branch>();
+            var lookAhead = caller.Rule.LookAheadHint ?? lookAheadHint;
 
             if (caller.Position == AFTER_RULE_POSITION)
             {
@@ -46,7 +47,7 @@ namespace Berp
             {
                 ruleCanFinish = false;
                 productions.Add(new ProductionRule(ProductionRuleType.Process, caller.Rule));
-                result.Add(CreateBranch(caller, productions, lookAheadHint));
+                result.Add(CreateBranch(caller, productions, lookAhead));
                 return result;
             }
 
@@ -73,7 +74,7 @@ namespace Berp
                     {
                         new ProductionRule(ProductionRuleType.Start, subRuleElement.ResolvedRule)
                     };
-                    var subRuleBranches = GetBranchesInSubRules(subRuleCallStackItem, out subRuleCanFinish, subRuleProductions, subRuleElement.LookAheadHint);
+                    var subRuleBranches = GetBranchesInSubRules(subRuleCallStackItem, out subRuleCanFinish, subRuleProductions, lookAhead);
 
                     result.AddRange(subRuleBranches);
 
@@ -105,7 +106,7 @@ namespace Berp
                     {
                         new ProductionRule(ProductionRuleType.Start, subRuleElement.ResolvedRule)
                     };
-                    var subRuleBranches = GetBranchesInSubRules(subRuleCallStackItem, out subRuleCanFinish, subRuleProductions);
+                    var subRuleBranches = GetBranchesInSubRules(subRuleCallStackItem, out subRuleCanFinish, subRuleProductions, lookAhead);
 
                     result.AddRange(subRuleBranches);
                     ruleCanFinish |= subRuleCanFinish;
