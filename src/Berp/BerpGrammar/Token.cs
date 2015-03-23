@@ -7,9 +7,9 @@ namespace Berp.BerpGrammar
     {
         public Token(TokenType tokenType, int lineNumber, int linePosition)
         {
-            this.TokenType = tokenType;
-            this.LineNumber = lineNumber;
-            this.LinePosition = linePosition;
+            TokenType = tokenType;
+            LineNumber = lineNumber;
+            LinePosition = linePosition;
         }
 
         public bool IsEOF { get { return TokenType == TokenType.EOF; } }
@@ -17,6 +17,7 @@ namespace Berp.BerpGrammar
         public string Text { get; set; }
         public int LineNumber { get; set; }
         public int LinePosition { get; set; }
+        public Location Location { get {return new Location(LineNumber, LinePosition);} }
 
         public void Detach()
         {

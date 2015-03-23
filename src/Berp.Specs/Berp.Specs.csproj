@@ -51,20 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Berp\BerpGrammar\ParserMessageProvider.cs">
-      <Link>BerpGrammarParserForTest\ParserMessageProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\Berp\BerpGrammar\Token.cs">
-      <Link>BerpGrammarParserForTest\Token.cs</Link>
-    </Compile>
-    <Compile Include="..\Berp\BerpGrammar\TokenMatcher.cs">
-      <Link>BerpGrammarParserForTest\TokenMatcher.cs</Link>
-    </Compile>
-    <Compile Include="..\Berp\BerpGrammar\TokenScanner.cs">
-      <Link>BerpGrammarParserForTest\TokenScanner.cs</Link>
-    </Compile>
     <Compile Include="BerpGrammarParserForTest\AstBuilder.cs" />
-    <Compile Include="BerpGrammarParserForTest\GrammarParser.cs" />
     <Compile Include="Features\AstBuilding.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -124,9 +111,15 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Berp\Berp.csproj">
+      <Project>{98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616}</Project>
+      <Name>Berp</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>$(SolutionDir)Berp\$(OutDir)berp.exe -g $(SolutionDir)Berp\BerpGrammar\BerpGrammar.berp -t $(SolutionDir)Berp\GeneratorTemplates\CSharp.razor -o $(ProjectDir)BerpGrammarParserForTest\GrammarParser.cs</PreBuildEvent>
+    <PreBuildEvent>$(SolutionDir)Berp\$(OutDir)berp.exe -g $(SolutionDir)Berp\BerpGrammar\BerpGrammar.berp -t $(SolutionDir)Berp\GeneratorTemplates\CSharp.razor -o $(SolutionDir)Berp\BerpGrammar\GrammarParser.cs</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

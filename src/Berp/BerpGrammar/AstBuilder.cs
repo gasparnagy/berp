@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Berp.BerpGrammar
 {
-    public class AstBuilder
+    public class AstBuilder : IAstBuilder
     {
         public class AstNode
         {
@@ -48,7 +48,7 @@ namespace Berp.BerpGrammar
         }
 
 
-        private DomBuilder domBuilder = new DomBuilder();
+        private readonly DomBuilder domBuilder = new DomBuilder();
         private readonly Stack<AstNode> stack = new Stack<AstNode>();
         public AstNode CurrentNode { get { return stack.Peek(); } }
 

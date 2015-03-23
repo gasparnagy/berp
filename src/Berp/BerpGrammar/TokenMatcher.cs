@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Berp.BerpGrammar
 {
-    public class TokenMatcher
+    public class TokenMatcher : ITokenMatcher
     {
         public bool Match_AlternateOp(Token token)
         {
@@ -68,6 +68,16 @@ namespace Berp.BerpGrammar
         public bool Match_Comma(Token token)
         {
             return token.TokenType == TokenType.Comma;
+        }
+
+        public bool Match_Number(Token token)
+        {
+            throw new NotSupportedException("Number token");
+        }
+
+        public bool Match_Other(Token token)
+        {
+            throw new NotSupportedException("Other token");
         }
 
         public bool Match_LBracket(Token token)

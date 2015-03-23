@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 
 namespace Berp.BerpGrammar
 {
-    public class TokenScanner
+    public class TokenScanner : ITokenScanner
     {
         private readonly TextReader textReader;
         private readonly IEnumerator<Token> tokenEnumerator;

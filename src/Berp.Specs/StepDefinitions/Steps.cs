@@ -1,4 +1,5 @@
-﻿using Berp.Specs.Support;
+﻿using Berp.Specs.BerpGrammarParserForTest;
+using Berp.Specs.Support;
 using System;
 using System.Linq;
 using System.IO;
@@ -13,7 +14,7 @@ namespace Berp.Specs.StepDefinitions
     {
         private string sourceContent;
         private bool stopAtFirstError = false;
-        private ParserException parsingError = null;
+        private CompositeParserException parsingError = null;
         private object ast;
 
         [Given(@"the input source from '(.*)'")]
@@ -42,12 +43,17 @@ namespace Berp.Specs.StepDefinitions
             parser.StopAtFirstError = stopAtFirstError;
             try
             {
-                ast = parser.Parse(new BerpGrammar.TokenScanner(new StringReader(sourceContent)));
+                ast = parser.Parse(new BerpGrammar.TokenScanner(new StringReader(sourceContent)), new TokenMatcher(), new AstBuilderForTest());
                 Console.WriteLine(ast);
             }
-            catch (ParserException parserEx)
+            catch (CompositeParserException parserEx)
             {
                 parsingError = parserEx;
+                Console.WriteLine(parsingError.GetErrorMessage());
+            }
+            catch (ParserException ex)
+            {
+                parsingError = new CompositeParserException(new []{ ex });
                 Console.WriteLine(parsingError.GetErrorMessage());
             }
             catch (Exception ex)
@@ -83,12 +89,17 @@ namespace Berp.Specs.StepDefinitions
             parsingError.Errors.Should().HaveCount(expectedErrorCount);
         }
 
-        private ParserError GetFirstError()
+        private UnexpectedTokenException GetFirstError()
         {
             stopAtFirstError.Should().BeTrue();
             parsingError.Errors.Should().HaveCount(1);
-            var error = parsingError.Errors[0];
-            return error;
+            var error = parsingError.Errors.First();
+            if (error is UnexpectedEOFException)
+            {
+                var eofEx = (UnexpectedEOFException) error;
+                error = new UnexpectedTokenException(new Token(BerpGrammar.TokenType.EOF, 0, 0), eofEx.ExpectedTokenTypes, eofEx.StateComment);
+            }
+            return error as UnexpectedTokenException;
         }
 
         [Then(@"the error should contain the expected tokens")]
@@ -113,7 +124,7 @@ namespace Berp.Specs.StepDefinitions
         {
             var error = GetFirstError();
 
-            error.LineNumber.Should().Be(expectedLineNumber, "there should be an error with the line number (got: {0})", parsingError.GetErrorMessage());
+            error.Location.Line.Should().Be(expectedLineNumber, "there should be an error with the line number (got: {0})", parsingError.GetErrorMessage());
         }
 
         [Then(@"the error should contain the line position number (.*)")]
@@ -121,7 +132,7 @@ namespace Berp.Specs.StepDefinitions
         {
             var error = GetFirstError();
 
-            error.LinePosition.Should().Be(expectedLinePositionNumber, "there should be an error with the line position number (got: {0})", parsingError.GetErrorMessage());
+            error.Location.Column.Should().Be(expectedLinePositionNumber, "there should be an error with the line position number (got: {0})", parsingError.GetErrorMessage());
         }
 
         [Then(@"the error should be an unexpected end of file error")]

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Berp.BerpGrammar;
 
-namespace Berp.BerpGrammar
+namespace Berp.Specs.BerpGrammarParserForTest
 {
-    public class AstBuilder
+    public class AstBuilderForTest : IAstBuilder
     {
         private class AstNode : List<object>
         {
@@ -36,7 +37,7 @@ namespace Berp.BerpGrammar
         private readonly Stack<AstNode> stack = new Stack<AstNode>();
         private AstNode CurrentNode { get { return stack.Peek(); } }
 
-        public AstBuilder()
+        public AstBuilderForTest()
         {
             stack.Push(new AstNode(RuleType.None));
         }
