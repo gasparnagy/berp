@@ -11,11 +11,15 @@ namespace Berp
     {
         private readonly string ns;
         private readonly string className;
+        private readonly string targetNamespace;
+        private readonly string targetClassName;
 
-        public Generator(string ns, string className = "Parser")
+        public Generator(string ns, string className, string targetNamespace, string targetClassName)
         {
             this.ns = ns;
             this.className = className;
+            this.targetNamespace = targetNamespace ?? ns;
+            this.targetClassName = targetClassName;
         }
 
         public void Generate(string templatePath, RuleSet ruleSet, Dictionary<int, State> states, string outputPath)
@@ -26,6 +30,8 @@ namespace Berp
             {
                 Namespace = ns,
                 ParserClassName = className,
+                TargetNamespace = targetNamespace,
+                TargetClassName = targetClassName,
                 RuleSet = ruleSet
             };
 

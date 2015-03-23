@@ -118,7 +118,7 @@ namespace Berp
             }
 
             Console.WriteLine("Generating parser class...");
-            var generator = new Generator(ruleSet.GetSetting("Namespace", "ParserGen"), ruleSet.GetSetting("ClassName", "Parser"));
+            var generator = new Generator(ruleSet.GetSetting("Namespace", "ParserGen"), ruleSet.GetSetting("ClassName", "Parser"), ruleSet.GetSetting("TargetNamespace", (string)null), ruleSet.GetSetting("TargetClassName", "object"));
             generator.Generate(options.Template, ruleSet, states, options.OutputFile);
         }
         private static void PrintStateTransitions(State state)

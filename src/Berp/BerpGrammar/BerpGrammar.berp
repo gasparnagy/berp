@@ -2,6 +2,8 @@
 	Tokens -> #Rule,#Token,#EOL,#Production,#Definition,#LParen,#RParen,#LBracket,#RBracket,#Arrow,#AlternateOp,#AnyMultiplier,#OneOrMoreMultiplier,#OneOrZeroMultiplier,#Comma,#Number
 	ClassName -> Parser
 	Namespace -> Berp.BerpGrammar
+	TargetNamespace -> Berp
+	TargetClassName -> RuleSet
 ]
 
 
