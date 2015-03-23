@@ -92,7 +92,7 @@ namespace Berp
             Console.WriteLine("Loading grammar...");
             var grammarDefinition = File.ReadAllText(options.Grammar);
             var parser = new BerpGrammar.Parser();
-            RuleSet ruleSet = (RuleSet)parser.Parse(new TokenScanner(new StringReader(grammarDefinition)));
+            var ruleSet = parser.Parse(new TokenScanner(new StringReader(grammarDefinition)));
 
             int tokenCount = ruleSet.Count(r => r is TokenRule);
             Console.WriteLine("The grammar was loaded with {0} tokens and {1} rules.", tokenCount, ruleSet.Count() - tokenCount);
@@ -118,7 +118,7 @@ namespace Berp
             }
 
             Console.WriteLine("Generating parser class...");
-            var generator = new Generator(ruleSet.GetSetting("Namespace", "ParserGen"), ruleSet.GetSetting("ClassName", "Parser"), ruleSet.GetSetting("TargetNamespace", (string)null), ruleSet.GetSetting("TargetClassName", "object"));
+            var generator = new Generator(ruleSet.GetSetting("Namespace", "ParserGen"), ruleSet.GetSetting("ClassName", "Parser"), ruleSet.GetSetting("TargetNamespace", (string)null), ruleSet.GetSetting("TargetClassName", "Ast"));
             generator.Generate(options.Template, ruleSet, states, options.OutputFile);
         }
         private static void PrintStateTransitions(State state)

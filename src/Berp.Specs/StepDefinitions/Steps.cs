@@ -15,7 +15,7 @@ namespace Berp.Specs.StepDefinitions
         private string sourceContent;
         private bool stopAtFirstError = false;
         private CompositeParserException parsingError = null;
-        private object ast;
+        private RuleSet ast;
 
         [Given(@"the input source from '(.*)'")]
         public void GivenTheInputSourceFrom(string fileName)

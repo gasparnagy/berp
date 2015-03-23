@@ -74,12 +74,12 @@ namespace @Model.Namespace
             public List<ParserException> Errors { get; set; }
         }
 
-        public object Parse(ITokenScanner tokenScanner)
+        public @(Model.TargetNamespace).@Model.TargetClassName Parse(ITokenScanner tokenScanner)
         {
             return Parse(tokenScanner, new TokenMatcher(), new AstBuilder());
         }
 
-        public object Parse(ITokenScanner tokenScanner, ITokenMatcher tokenMatcher, IAstBuilder astBuilder)
+        public @(Model.TargetNamespace).@Model.TargetClassName Parse(ITokenScanner tokenScanner, ITokenMatcher tokenMatcher, IAstBuilder astBuilder)
         {
             var context = new ParserContext
             {
@@ -159,7 +159,7 @@ namespace @Model.Namespace
             HandleAstError(context, () => context.Builder.EndRule(ruleType));
         }
 
-        object GetResult(ParserContext context)
+        @(Model.TargetNamespace).@Model.TargetClassName GetResult(ParserContext context)
         {
             return context.Builder.GetResult();
         }
@@ -273,7 +273,7 @@ namespace @Model.Namespace
         void Build(Token token);
         void StartRule(RuleType ruleType);
         void EndRule(RuleType ruleType);
-        object GetResult();
+        @(Model.TargetNamespace).@Model.TargetClassName GetResult();
     }
 
     public partial interface ITokenScanner 

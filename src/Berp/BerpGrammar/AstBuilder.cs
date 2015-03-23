@@ -83,6 +83,6 @@ namespace Berp.BerpGrammar
             CurrentNode.AddSubNode(astNode.Node, subNode);
         }
 
-        public object GetResult() { return CurrentNode.SubNodes[0].Value[0]; }
+        public RuleSet GetResult() { return (RuleSet)CurrentNode.SubNodes[0].Value[0]; }
     }
 }

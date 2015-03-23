@@ -89,12 +89,12 @@ namespace Berp.BerpGrammar
             public List<ParserException> Errors { get; set; }
         }
 
-        public object Parse(ITokenScanner tokenScanner)
+        public Berp.RuleSet Parse(ITokenScanner tokenScanner)
         {
             return Parse(tokenScanner, new TokenMatcher(), new AstBuilder());
         }
 
-        public object Parse(ITokenScanner tokenScanner, ITokenMatcher tokenMatcher, IAstBuilder astBuilder)
+        public Berp.RuleSet Parse(ITokenScanner tokenScanner, ITokenMatcher tokenMatcher, IAstBuilder astBuilder)
         {
             var context = new ParserContext
             {
@@ -174,7 +174,7 @@ namespace Berp.BerpGrammar
             HandleAstError(context, () => context.Builder.EndRule(ruleType));
         }
 
-        object GetResult(ParserContext context)
+        Berp.RuleSet GetResult(ParserContext context)
         {
             return context.Builder.GetResult();
         }
@@ -2610,7 +2610,7 @@ namespace Berp.BerpGrammar
         void Build(Token token);
         void StartRule(RuleType ruleType);
         void EndRule(RuleType ruleType);
-        object GetResult();
+        Berp.RuleSet GetResult();
     }
 
     public partial interface ITokenScanner 

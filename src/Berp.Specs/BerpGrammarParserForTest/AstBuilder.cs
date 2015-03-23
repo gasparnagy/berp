@@ -58,9 +58,25 @@ namespace Berp.Specs.BerpGrammarParserForTest
             CurrentNode.Add(node);
         }
 
-        public object GetResult() 
-        { 
-            return CurrentNode.First(); 
+        class RuleSetForTest : RuleSet
+        {
+            private readonly object node;
+
+            public RuleSetForTest(object node)
+                : base((Dictionary<string, object>)null)
+            {
+                this.node = node;
+            }
+
+            public override string ToString()
+            {
+                return node.ToString();
+            }
+        }
+
+        public RuleSet GetResult()
+        {
+            return new RuleSetForTest(CurrentNode.First());
         } 
     }
 }
