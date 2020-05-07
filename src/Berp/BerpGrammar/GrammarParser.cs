@@ -71,7 +71,7 @@ namespace Berp.BerpGrammar
         LookAheadTokenList, // LookAheadTokenList! := #Token (#AlternateOp #Token)*
         Settings, // Settings! := (#LBracket #EOL) Parameter* (#RBracket #EOL)
         Parameter, // Parameter! := #Rule #Arrow ParameterValue (#Comma ParameterValue)* #EOL
-        ParameterValue, // ParameterValue := (#Rule | #Token)
+        ParameterValue, // ParameterValue := (#Rule | #Token | #Number)
     }
 
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -127,7 +127,7 @@ namespace Berp.BerpGrammar
         private void AddError(ParserContext context, ParserException error)
         {
             context.Errors.Add(error);
-            if (context.Errors.Count > 10)
+            if (context.Errors.Count >= 10)
                 throw new CompositeParserException(context.Errors.ToArray());
         }
 
@@ -572,10 +572,15 @@ namespace Berp.BerpGrammar
                 Build(context, token);
                 return 5;
             }
+            if (Match_Number(context, token))
+            {
+                Build(context, token);
+                return 5;
+            }
             
             const string stateComment = "State: 4 - Grammar:0>Settings:1>Parameter:1>#Arrow:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#Rule", "#Token", "#Number"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -628,10 +633,15 @@ namespace Berp.BerpGrammar
                 Build(context, token);
                 return 5;
             }
+            if (Match_Number(context, token))
+            {
+                Build(context, token);
+                return 5;
+            }
             
             const string stateComment = "State: 6 - Grammar:0>Settings:1>Parameter:3>__grp7:0>#Comma:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#Rule", "#Token", "#Number"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)

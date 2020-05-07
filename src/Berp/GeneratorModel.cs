@@ -12,6 +12,7 @@ namespace Berp
         public string TargetNamespace { get; set; }
         public string TargetClassName { get; set; }
         public bool SimpleTokenMatcher { get; set; }
+        public int MaxCollectedError { get; set; }
         public RuleSet RuleSet { get; set; }
 
         public State EndState

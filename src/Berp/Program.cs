@@ -116,7 +116,8 @@ namespace Berp
                 ruleSet.GetSetting("ClassName", "Parser"), 
                 ruleSet.GetSetting("TargetNamespace", (string)null), 
                 ruleSet.GetSetting("TargetClassName", "Ast"),
-                bool.Parse(ruleSet.GetSetting("SimpleTokenMatcher", "false")));
+                bool.Parse(ruleSet.GetSetting("SimpleTokenMatcher", "false")),
+                int.Parse(ruleSet.GetSetting("MaxCollectedError", "10")));
             generator.Generate(options.Template, ruleSet, states, options.OutputFile);
         }
         private static void PrintStateTransitions(State state)

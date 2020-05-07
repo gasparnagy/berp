@@ -14,14 +14,16 @@ namespace Berp
         private readonly string targetNamespace;
         private readonly string targetClassName;
         private readonly bool simpleTokenMatcher;
+        private readonly int maxCollectedError;
 
-        public Generator(string ns, string className, string targetNamespace, string targetClassName, bool simpleTokenMatcher)
+        public Generator(string ns, string className, string targetNamespace, string targetClassName, bool simpleTokenMatcher, int maxCollectedError)
         {
             this.ns = ns;
             this.className = className;
             this.targetNamespace = targetNamespace ?? ns;
             this.targetClassName = targetClassName;
             this.simpleTokenMatcher = simpleTokenMatcher;
+            this.maxCollectedError = maxCollectedError;
         }
 
         public void Generate(string templatePath, RuleSet ruleSet, Dictionary<int, State> states, string outputPath)
@@ -35,6 +37,7 @@ namespace Berp
                 TargetNamespace = targetNamespace,
                 TargetClassName = targetClassName,
                 SimpleTokenMatcher = simpleTokenMatcher,
+                MaxCollectedError = maxCollectedError,
                 RuleSet = ruleSet
             };
 

@@ -24,4 +24,4 @@ LookAheadTokenList! := #Token (#AlternateOp #Token)*
 
 Settings! := (#LBracket #EOL) Parameter* (#RBracket #EOL)
 Parameter! := #Rule #Arrow ParameterValue (#Comma ParameterValue)* #EOL
-ParameterValue := (#Rule | #Token)
+ParameterValue := (#Rule | #Token | #Number)
