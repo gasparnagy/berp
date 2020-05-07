@@ -288,6 +288,25 @@ namespace @Model.Namespace
         @:bool Match_@(rule.Name.Replace("#", ""))(Token token);
         }
     }
+
+@if(Model.SimpleTokenMatcher)
+{
+<text>
+    public partial class SimpleTokenMatcher : ITokenMatcher
+    {
+</text>
+        foreach(var rule in Model.RuleSet.TokenRules)
+        {
+        @:public virtual bool Match_@(rule.Name.Replace("#", ""))(Token token) => token.TokenType == TokenType.@(rule.Name.Replace("#", ""));
+        }
+<text>
+    }
+    
+    public partial class TokenMatcher : SimpleTokenMatcher
+    {
+    }
+</text>
+}
 }
 #pragma warning restore
 #endregion

@@ -11,6 +11,7 @@ namespace Berp
         public string ParserClassName { get; set; }
         public string TargetNamespace { get; set; }
         public string TargetClassName { get; set; }
+        public bool SimpleTokenMatcher { get; set; }
         public RuleSet RuleSet { get; set; }
 
         public State EndState

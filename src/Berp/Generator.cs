@@ -13,13 +13,15 @@ namespace Berp
         private readonly string className;
         private readonly string targetNamespace;
         private readonly string targetClassName;
+        private readonly bool simpleTokenMatcher;
 
-        public Generator(string ns, string className, string targetNamespace, string targetClassName)
+        public Generator(string ns, string className, string targetNamespace, string targetClassName, bool simpleTokenMatcher)
         {
             this.ns = ns;
             this.className = className;
             this.targetNamespace = targetNamespace ?? ns;
             this.targetClassName = targetClassName;
+            this.simpleTokenMatcher = simpleTokenMatcher;
         }
 
         public void Generate(string templatePath, RuleSet ruleSet, Dictionary<int, State> states, string outputPath)
@@ -32,6 +34,7 @@ namespace Berp
                 ParserClassName = className,
                 TargetNamespace = targetNamespace,
                 TargetClassName = targetClassName,
+                SimpleTokenMatcher = simpleTokenMatcher,
                 RuleSet = ruleSet
             };
 
