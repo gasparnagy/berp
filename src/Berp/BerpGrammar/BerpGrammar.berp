@@ -4,6 +4,7 @@
 	Namespace -> Berp.BerpGrammar
 	TargetNamespace -> Berp
 	TargetClassName -> RuleSet
+	SimpleTokenMatcher -> true
 ]
 
 

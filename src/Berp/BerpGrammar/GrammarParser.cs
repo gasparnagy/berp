@@ -2639,6 +2639,36 @@ namespace Berp.BerpGrammar
         bool Match_Number(Token token);
         bool Match_Other(Token token);
     }
+
+
+    public partial class SimpleTokenMatcher : ITokenMatcher
+    {
+
+        public virtual bool Match_EOF(Token token) => token.TokenType == TokenType.EOF;
+        public virtual bool Match_Rule(Token token) => token.TokenType == TokenType.Rule;
+        public virtual bool Match_Token(Token token) => token.TokenType == TokenType.Token;
+        public virtual bool Match_EOL(Token token) => token.TokenType == TokenType.EOL;
+        public virtual bool Match_Production(Token token) => token.TokenType == TokenType.Production;
+        public virtual bool Match_Definition(Token token) => token.TokenType == TokenType.Definition;
+        public virtual bool Match_LParen(Token token) => token.TokenType == TokenType.LParen;
+        public virtual bool Match_RParen(Token token) => token.TokenType == TokenType.RParen;
+        public virtual bool Match_LBracket(Token token) => token.TokenType == TokenType.LBracket;
+        public virtual bool Match_RBracket(Token token) => token.TokenType == TokenType.RBracket;
+        public virtual bool Match_Arrow(Token token) => token.TokenType == TokenType.Arrow;
+        public virtual bool Match_AlternateOp(Token token) => token.TokenType == TokenType.AlternateOp;
+        public virtual bool Match_AnyMultiplier(Token token) => token.TokenType == TokenType.AnyMultiplier;
+        public virtual bool Match_OneOrMoreMultiplier(Token token) => token.TokenType == TokenType.OneOrMoreMultiplier;
+        public virtual bool Match_OneOrZeroMultiplier(Token token) => token.TokenType == TokenType.OneOrZeroMultiplier;
+        public virtual bool Match_Comma(Token token) => token.TokenType == TokenType.Comma;
+        public virtual bool Match_Number(Token token) => token.TokenType == TokenType.Number;
+        public virtual bool Match_Other(Token token) => token.TokenType == TokenType.Other;
+
+    }
+    
+    public partial class TokenMatcher : SimpleTokenMatcher
+    {
+    }
+
 }
 #pragma warning restore
 #endregion
