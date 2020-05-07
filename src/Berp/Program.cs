@@ -18,19 +18,8 @@ namespace Berp
         public string Grammar { get; set; }
         [Option('o', "output", Required = true, HelpText = "Generated parser class file.")]
         public string OutputFile { get; set; }
-        [Option('d', null, HelpText = "Print details during execution.")]
+        [Option('d', "details", HelpText = "Print details during execution.")]
         public bool DiagnosticsMode { get; set; }
-
-        [HelpOption]
-        public string GetUsage()
-        {
-            var help = GetHeader();
-            help.AddPreOptionsLine(string.Empty);
-            help.AddPreOptionsLine("Usage: berp.exe -g grammar.berp -t template.razor -o parseroutpout [-d]");
-            help.AddPreOptionsLine("       Check details at https://github.com/gasparnagy/berp");
-            help.AddOptions(this);
-            return help;
-        }
 
         public HelpText GetHeader()
         {
@@ -53,12 +42,16 @@ namespace Berp
     {
         static int Main(string[] args)
         {
-            var options = new Options();
-            if (CommandLine.Parser.Default.ParseArguments(args, options))
+            var commandLineParseResult = CommandLine.Parser.Default.ParseArguments<Options>(args);
+
+            int result = 2;
+
+            commandLineParseResult.WithParsed<Options>(options =>
             {
                 try
                 {
                     GenerateParserInternal(options);
+                    result = 0;
                 }
                 catch (Exception thrownEx)
                 {
@@ -75,12 +68,12 @@ namespace Berp
                     {
                         Console.WriteLine(thrownEx);
                     }
-                    return 1;
-                }
-                return 0;
-            }
 
-            return 2;
+                    result = 1;
+                }
+            });
+
+            return result;
         }
 
         private static void GenerateParserInternal(Options options)
