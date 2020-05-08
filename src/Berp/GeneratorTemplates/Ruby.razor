@@ -90,7 +90,7 @@ module @Model.Namespace
 
     def add_error(context, error)
       context.errors.push(error)
-      raise CompositeParserException, context.errors if context.errors.length > 10
+      raise CompositeParserException, context.errors if context.errors.length > @Model.MaxCollectedError
     end
 
     def start_rule(context, rule_type)
@@ -212,4 +212,20 @@ module @Model.Namespace
     end
 
   end
+
+@if(Model.SimpleTokenMatcher)
+{
+<text>  class TokenMatcher
+
+    def reset
+    end</text>
+        foreach(var rule in Model.RuleSet.TokenRules)
+        {
+<text>        
+    def match_@(rule.Name.Replace("#", ""))(token)
+      return token.token_type == @(":" + rule.Name.Replace("#", ""))
+    end</text>      
+        }
+<text>  end</text>
+}
 end
