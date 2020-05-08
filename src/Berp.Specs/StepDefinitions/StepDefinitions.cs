@@ -10,33 +10,33 @@ using Berp.BerpGrammar;
 namespace Berp.Specs.StepDefinitions
 {
     [Binding]
-    public class Steps
+    public class StepDefinitions
     {
         private string sourceContent;
         private bool stopAtFirstError = false;
         private CompositeParserException parsingError = null;
         private RuleSet ast;
 
-        [Given(@"the input source from '(.*)'")]
+        [Given("the input source from {string}")]
         public void GivenTheInputSourceFrom(string fileName)
         {
             var fullPath = TestFolders.GetInputFilePath(fileName);
             sourceContent = File.ReadAllText(fullPath);
         }
 
-        [Given(@"the input source")]
+        [Given("the input source")]
         public void GivenTheInputSource(string content)
         {
             sourceContent = content;
         }
 
-        [Given(@"the parser is set to stop at first error")]
+        [Given("the parser is set to stop at first error")]
         public void GivenTheParserIsSetToStopAtFirstError()
         {
             stopAtFirstError = true;
         }
 
-        [When(@"the input source is parsed with the BerpGrammarParserForTest parser")]
+        [When("the input source is parsed with the BerpGrammarParserForTest parser")]
         public void WhenTheInputSourceIsParsedWithTheBerpGrammarParserForTestParser()
         {
             var parser = new BerpGrammar.Parser();
@@ -62,19 +62,19 @@ namespace Berp.Specs.StepDefinitions
             }
         }
 
-        [Then(@"the parsing should be successful")]
+        [Then("the parsing should be successful")]
         public void ThenTheParsingShouldBeSuccessful()
         {
             parsingError.Should().BeNull("A parsing error occured.");
         }
 
-        [Then(@"the parsing should fail")]
+        [Then("the parsing should fail")]
         public void ThenTheParsingShouldFail()
         {
             parsingError.Should().NotBeNull("No parsing error received.");
         }
 
-        [Then(@"the created AST should be")]
+        [Then("the created AST should be")]
         public void ThenTheCreatedASTShouldBe(string expectedAstText)
         {
             ast.Should().NotBeNull();
@@ -82,7 +82,7 @@ namespace Berp.Specs.StepDefinitions
             TestHelpers.NormalizeText(astText).Should().Be(TestHelpers.NormalizeText(expectedAstText));
         }
 
-        [Then(@"there should be (.*) parsing errors")]
+        [Then("there should be {int} parsing errors")]
         public void ThenThereShouldBeParsingErrors(int expectedErrorCount)
         {
             stopAtFirstError.Should().BeFalse();
@@ -102,7 +102,7 @@ namespace Berp.Specs.StepDefinitions
             return error as UnexpectedTokenException;
         }
 
-        [Then(@"the error should contain the expected tokens")]
+        [Then("the error should contain the expected tokens")]
         public void ThenTheErrorShouldContain(Table expectedTokenTypesTable)
         {
             var error = GetFirstError();
@@ -111,7 +111,7 @@ namespace Berp.Specs.StepDefinitions
             error.ExpectedTokenTypes.Should().BeEquivalentTo(expectedTokenTypes, "there should be an error with the expected tokens (got: {0})", parsingError.GetErrorMessage());
         }
 
-        [Then(@"the error should contain the received token (.*)")]
+        [Then("the error should contain the received token {word}")]
         public void ThenTheErrorShouldContainTheReceivedToken(string expectedToken)
         {
             var error = GetFirstError();
@@ -119,7 +119,7 @@ namespace Berp.Specs.StepDefinitions
             error.ReceivedToken.ToString().Should().StartWith(expectedToken, "there should be an error with the received token (got: {0})", parsingError.GetErrorMessage());
         }
 
-        [Then(@"the error should contain the line number (.*)")]
+        [Then("the error should contain the line number {int}")]
         public void ThenTheErrorShouldContainTheLineNumber(int expectedLineNumber)
         {
             var error = GetFirstError();
@@ -127,7 +127,7 @@ namespace Berp.Specs.StepDefinitions
             error.Location.Line.Should().Be(expectedLineNumber, "there should be an error with the line number (got: {0})", parsingError.GetErrorMessage());
         }
 
-        [Then(@"the error should contain the line position number (.*)")]
+        [Then("the error should contain the line position number {int}")]
         public void ThenTheErrorShouldContainTheLinePositionNumber(int expectedLinePositionNumber)
         {
             var error = GetFirstError();

@@ -14,6 +14,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
 
+    <PackageReference Include="SpecFlow" Version="3.1.89" />
+    <PackageReference Include="CucumberExpressions.SpecFlow.3-1" Version="1.0.2" />
+
     <PackageReference Include="SpecFlow.xUnit" Version="3.1.89" />
     <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.1.89" />
 
