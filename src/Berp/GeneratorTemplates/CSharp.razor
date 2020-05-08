@@ -41,7 +41,7 @@
 {<text>Match_@(tokenType)(context, token)</text>}
 using System;
 using System.Collections.Generic;
-namespace @Model.Namespace
+namespace @(Model.Settings.CSHARP_Namespace ?? Model.Namespace)
 {
     public enum TokenType
     {

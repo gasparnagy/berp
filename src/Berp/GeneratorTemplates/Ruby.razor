@@ -28,7 +28,7 @@
 # This file is generated. Do not edit! Edit Ruby.razor instead.
 @Model.Settings.RUBY_RequireList
 
-module @Model.Namespace
+module @(Model.Settings.RUBY_Module ?? Model.Namespace)
 
   RULE_TYPE = [
     :None,
