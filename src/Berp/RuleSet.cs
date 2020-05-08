@@ -8,7 +8,7 @@ namespace Berp
 {
     public class RuleSet : List<Rule>
     {
-        private readonly Dictionary<string, object> settings;
+        public ParserGeneratorSettings Settings { get; }
         private readonly List<LookAheadHint> lookAheadHints = new List<LookAheadHint>();
         private TokenType[] ignoredTokens = new TokenType[0];
 
@@ -40,16 +40,6 @@ namespace Berp
             get { return lookAheadHints; }
         }
 
-        public T GetSetting<T>(string name, T defaultValue = default(T))
-        {
-            object paramValue;
-            if (settings.TryGetValue(name, out paramValue))
-            {
-                return (T)paramValue;
-            }
-            return defaultValue;
-        }
-
         public RuleSet(Type tokenType)
         {
             Add(new TokenRule(TokenType.EOF));
@@ -60,9 +50,9 @@ namespace Berp
             Add(new TokenRule(TokenType.Other));
         }
 
-        public RuleSet(Dictionary<string, object> settings)
+        public RuleSet(ParserGeneratorSettings settings)
         {
-            this.settings = settings ?? new Dictionary<string, object>();
+            this.Settings = settings ?? new ParserGeneratorSettings();
 
             AddTokens();
             AddIgnoredContent();
@@ -70,14 +60,14 @@ namespace Berp
 
         private void AddIgnoredContent()
         {
-            SetIgnoredContent(GetSetting("IgnoredTokens", new object[0])
+            SetIgnoredContent(Settings.GetSetting("IgnoredTokens", new object[0])
                 .Select(token => new TokenType(token.ToString().Substring(1))).ToArray());
         }
 
         private void AddTokens()
         {
             Add(new TokenRule(TokenType.EOF));
-            foreach (var token in GetSetting("Tokens", new object[0]))
+            foreach (var token in Settings.GetSetting("Tokens", new object[0]))
             {
                 Add(new TokenRule(new TokenType(token.ToString().Substring(1))));
             }

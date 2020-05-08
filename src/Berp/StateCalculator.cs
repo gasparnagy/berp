@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Berp
 {
-    class StateCalculator
+    public class StateCalculator
     {
         private const int AFTER_RULE_POSITION = -1;
 

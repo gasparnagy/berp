@@ -86,7 +86,7 @@ namespace Berp.BerpGrammar
                 case RuleType.Grammar:
                 {
                     var rules = astNode.GetAllSubNodes().OfType<Rule>().ToArray();
-                    var settings = astNode.GetAllSubNodes().OfType<Dictionary<string, object>>().FirstOrDefault();
+                    var settings = new ParserGeneratorSettings(astNode.GetAllSubNodes().OfType<Dictionary<string, object>>().FirstOrDefault());
                     var ruleSet = new RuleSet(settings);
                     ruleSet.AddRange(rules);
                     ruleSet.AddRange(tempRules);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 
 namespace Berp
@@ -14,15 +15,23 @@ namespace Berp
         public bool SimpleTokenMatcher { get; set; }
         public int MaxCollectedError { get; set; }
         public RuleSet RuleSet { get; set; }
+        public dynamic Settings { get; }
 
         public State EndState
         {
             get { return States.Values.FirstOrDefault(s => s.IsEndState); }
         }
 
-        public GeneratorModel(Dictionary<int, State> states)
+        public GeneratorModel(Dictionary<int, State> states, ParserGeneratorSettings settings)
         {
             States = states;
+
+            var dynamicSettings = new ExpandoObject();
+            foreach (var setting in settings)
+            {
+                ((IDictionary<string, object>)dynamicSettings)[setting.Key] = setting.Value;
+            }
+            Settings = dynamicSettings;
         }
     }
 }

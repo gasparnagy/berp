@@ -63,7 +63,7 @@ namespace Berp.Specs.BerpGrammarParserForTest
             private readonly object node;
 
             public RuleSetForTest(object node)
-                : base((Dictionary<string, object>)null)
+                : base((ParserGeneratorSettings)null)
             {
                 this.node = node;
             }
