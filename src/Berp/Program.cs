@@ -20,6 +20,8 @@ namespace Berp
         public string OutputFile { get; set; }
         [Option('d', "details", HelpText = "Print details during execution.")]
         public bool DiagnosticsMode { get; set; }
+        [Option("settings", Required = true, HelpText = "Extends/overrides settings in grammar file, use 'key1=value1,key2=value2' format")]
+        public string SettingsOverride { get; set; }
 
         public HelpText GetHeader()
         {
@@ -86,6 +88,16 @@ namespace Berp
             var grammarDefinition = File.ReadAllText(options.Grammar);
             var parser = new BerpGrammar.Parser();
             var ruleSet = parser.Parse(new TokenScanner(new StringReader(grammarDefinition)));
+
+            if (!string.IsNullOrWhiteSpace(options.SettingsOverride))
+            {
+                var overrides = options.SettingsOverride.Split(',');
+                foreach (var settingSpec in overrides)
+                {
+                    var parts = settingSpec.Split('=');
+                    ruleSet.Settings[parts[0].Trim()] = parts[1].Trim();
+                }
+            }
 
             int tokenCount = ruleSet.Count(r => r is TokenRule);
             Console.WriteLine("The grammar was loaded with {0} tokens and {1} rules.", tokenCount, ruleSet.Count() - tokenCount);

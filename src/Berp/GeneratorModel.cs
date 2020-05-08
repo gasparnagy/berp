@@ -22,16 +22,33 @@ namespace Berp
             get { return States.Values.FirstOrDefault(s => s.IsEndState); }
         }
 
+        public class NullingExpandoObject : DynamicObject
+        {
+            private readonly Dictionary<string, object> values;
+
+            public NullingExpandoObject(Dictionary<string, object> values)
+            {
+                this.values = values;
+            }
+
+            public override bool TryGetMember(GetMemberBinder binder, out object result)
+            {
+                // We don't care about the return value...
+                values.TryGetValue(binder.Name, out result);
+                return true;
+            }
+
+            public override bool TrySetMember(SetMemberBinder binder, object value)
+            {
+                values[binder.Name] = value;
+                return true;
+            }
+        }
+
         public GeneratorModel(Dictionary<int, State> states, ParserGeneratorSettings settings)
         {
             States = states;
-
-            var dynamicSettings = new ExpandoObject();
-            foreach (var setting in settings)
-            {
-                ((IDictionary<string, object>)dynamicSettings)[setting.Key] = setting.Value;
-            }
-            Settings = dynamicSettings;
+            Settings = new NullingExpandoObject(settings);
         }
     }
 }
