@@ -1,14 +1,17 @@
-Berp
-====
+# Berp
 
 A flexible cross-language parser generator with support for languages without explicit tokenization rules (like Gherkin).
 
-Features:
+## Installation
+
+It can be installed from [NuGet](https://www.nuget.org/packages/Berp). The executable is within the `tools/net471` folder inside the package.
+
+## Features
 
 * generates parser for it's own grammar (the "hello world" for parser generators), see [Berp Grammar](https://github.com/gasparnagy/berp/blob/master/src/Berp/BerpGrammar/BerpGrammar.berp)
 * does not generate a lexer/tokenizer, so ideal for languages where tokenization is easy or anyway not really possible
 * simple, BNF-like grammar definition
-* supports multiple target languages (currently C# and Ruby) with the same grammar (the language generation is specified in template files)
+* supports multiple target languages (currently C#, Java, Ruby, JavaScript, Go, Python) with the same grammar (the language generation is specified in template files)
 * allows building AST, with AST-building hooks
 * supports streamed token reading (tokens can be kept attached to the input stream to avoid unnecessary data transfer and object creation)
 * supports context-sensitive tokens, also possible to change the tokenization rules during parsing (e.g. when a ``#language: no`` is encountered)
@@ -18,12 +21,12 @@ Features:
 * rules can be marked as production rules to be represented in AST
 * allows capturing ignored content tokens (e.g. comments)
 
-Samples:
+## Samples
 
 * [Berp Grammar](https://github.com/gasparnagy/berp/blob/master/src/Berp/BerpGrammar/BerpGrammar.berp)
 * [Gherkin Grammar](https://github.com/gasparnagy/berp/blob/master/examples/gherkin/GherkinGrammar.berp)
 
-Supported target languages: 
+## Supported target languages
 
 * C# - `CSharp.razor`
 * Java - `Java.razor`
@@ -32,7 +35,8 @@ Supported target languages:
 * Go - `Go.razor`
 * Python - `Python.razor`
 
-TODO:
+##TODO
+
 * Go: separate line from token
 * Go: support for SimpleTokenMatcher
 * Go: support for MaxCollectedError
