@@ -13,11 +13,15 @@
 
   <ItemGroup>
     <None Remove="GeneratorTemplates\CSharp.razor" />
+    <None Remove="GeneratorTemplates\Java.razor" />
     <None Remove="GeneratorTemplates\Ruby.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="GeneratorTemplates\CSharp.razor">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratorTemplates\Java.razor">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GeneratorTemplates\Ruby.razor">
