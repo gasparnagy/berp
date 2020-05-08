@@ -23,16 +23,20 @@ Samples:
 * [Berp Grammar](https://github.com/gasparnagy/berp/blob/master/src/Berp/BerpGrammar/BerpGrammar.berp)
 * [Gherkin Grammar](https://github.com/gasparnagy/berp/blob/master/examples/gherkin/GherkinGrammar.berp)
 
-State: alpha
+Supported target languages: 
+
+* C# - `CSharp.razor`
+* Java - `Java.razor`
+* Ruby - `Ruby.razor`
+* JavaScript (TypeScript) - `TypeScript.razor`
+* Go - `Go.razor`
+* Python - `Python.razor`
 
 TODO:
-
-* improve error handling and error reporting
-* keep and use original rule position (to support repeating sub-rules within the same rule)
-* separating token scanner and token matcher for C# generation
-* skip generating labels for non-production rules
-* cleanup dependency injection (AST builder, token matcher, ...)
-* report error lines for grammar parsing errors
-* support recursive grammar rules
-
+* Go: separate line from token
+* Go: support for SimpleTokenMatcher
+* Go: support for MaxCollectedError
+* Import Perl from [Gherkin](https://github.com/cucumber/cucumber/blob/master/gherkin/perl/gherkin-perl.razor)
+* Import Objective-C from Gherkin [header](https://github.com/cucumber/cucumber/blob/master/gherkin/objective-c/gherkin-objective-c-header.razor) & [implementation](https://github.com/cucumber/cucumber/blob/master/gherkin/objective-c/gherkin-objective-c-implementation.razor)
+* Import C from Gherkin [header](https://github.com/cucumber/cucumber/blob/master/gherkin/c/gherkin-c-rule-type.razor) & [implementation](https://github.com/cucumber/cucumber/blob/master/gherkin/c/gherkin-c-parser.razor)
 
