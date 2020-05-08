@@ -318,19 +318,16 @@ public class @Model.ParserClassName<T> {
     
         @("@Override")
         public void reset() {
-        }    
-</text>
+        }</text>
+        
         foreach(var rule in Model.RuleSet.TokenRules)
         {
 <text>
         @("@Override")
         public boolean match_@(rule.Name.Replace("#", ""))(Token token) {
-            return token.TokenType == TokenType.@(rule.Name.Replace("#", ""));
+            return token.tokenType == TokenType.@(rule.Name.Replace("#", ""));
+        }</text>
         }
-</text>
-        }
-<text>
-    }
-</text>
+<text>    }</text>
 }
 }
