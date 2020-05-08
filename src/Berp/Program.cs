@@ -20,7 +20,7 @@ namespace Berp
         public string OutputFile { get; set; }
         [Option('d', "details", HelpText = "Print details during execution.")]
         public bool DiagnosticsMode { get; set; }
-        [Option("settings", Required = true, HelpText = "Extends/overrides settings in grammar file, use 'key1=value1,key2=value2,key3=!file-path-to-load-setting-from' format")]
+        [Option("settings", Required = false, HelpText = "Extends/overrides settings in grammar file, use 'key1=value1,key2=value2,key3=!file-path-to-load-setting-from' format")]
         public string SettingsOverride { get; set; }
 
         public HelpText GetHeader()
