@@ -8,6 +8,7 @@
     <Authors>gasparnagy, specsolutions</Authors>
     <Description>Berp Parser Generator</Description>
 
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
