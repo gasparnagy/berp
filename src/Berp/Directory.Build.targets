@@ -1,0 +1,7 @@
+﻿<Project>
+  <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec" >
+    <PropertyGroup>
+      <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
+</Project>

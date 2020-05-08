@@ -5,10 +5,11 @@
     <TargetFramework>net471</TargetFramework>
     <Company>Spec Solutions</Company>
     <Copyright>Copyright (C) 2014-2020, Gaspar Nagy (Spec Solutions)</Copyright>
-    <Authors>gasparnagy, specsolutions</Authors>
-    <Description>Berp Parser Generator</Description>
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <NuspecFile>$(MSBuildThisFileDirectory)Berp.nuspec</NuspecFile>
+    <NuspecProperties>version=$(PackageVersion)</NuspecProperties>
+
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
