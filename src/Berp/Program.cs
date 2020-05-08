@@ -20,7 +20,7 @@ namespace Berp
         public string OutputFile { get; set; }
         [Option('d', "details", HelpText = "Print details during execution.")]
         public bool DiagnosticsMode { get; set; }
-        [Option("settings", Required = true, HelpText = "Extends/overrides settings in grammar file, use 'key1=value1,key2=value2' format")]
+        [Option("settings", Required = true, HelpText = "Extends/overrides settings in grammar file, use 'key1=value1,key2=value2,key3=!file-path-to-load-setting-from' format")]
         public string SettingsOverride { get; set; }
 
         public HelpText GetHeader()
@@ -95,7 +95,12 @@ namespace Berp
                 foreach (var settingSpec in overrides)
                 {
                     var parts = settingSpec.Split('=');
-                    ruleSet.Settings[parts[0].Trim()] = parts[1].Trim();
+                    var settingValue = parts[1].Trim();
+                    if (settingValue.StartsWith("!"))
+                    {
+                        settingValue = File.ReadAllText(settingValue.TrimStart('!'));
+                    }
+                    ruleSet.Settings[parts[0].Trim()] = settingValue;
                 }
             }
 
