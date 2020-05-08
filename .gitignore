@@ -108,3 +108,4 @@ Backup*/
 UpgradeLog*.XML
 .vs/
 launchSettings.json
+*.feature.cs
