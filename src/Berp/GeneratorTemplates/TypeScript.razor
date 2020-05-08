@@ -88,7 +88,7 @@ export default class Parser {
 
   private addError(context: Context, error: Error) {
     context.errors.push(error);
-    if (context.errors.length > 10)
+    if (context.errors.length > @Model.MaxCollectedError)
       throw CompositeParserException.create(context.errors);
   }
 
@@ -217,5 +217,22 @@ export default class Parser {
   }
 </text>
 }
+}
 
+@if(Model.SimpleTokenMatcher)
+{
+<text>
+export class TokenMatcher {
+    
+  public reset() {
+  }</text>
+        
+        foreach(var rule in Model.RuleSet.TokenRules)
+        {
+<text>
+  public match_@(rule.Name.Replace("#", ""))(token: Token) {
+    return token.tokenType === TokenType.@(rule.Name.Replace("#", ""))
+  }</text>
+        }
+<text>}</text>
 }
