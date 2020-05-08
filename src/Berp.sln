@@ -1,18 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Berp", "Berp\Berp.csproj", "{98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Berp", "Berp\Berp.csproj", "{98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Berp.Specs", "Berp.Specs\Berp.Specs.csproj", "{53051ECA-ABB9-4234-BD66-D4D5A37820ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Berp.Specs", "Berp.Specs\Berp.Specs.csproj", "{53051ECA-ABB9-4234-BD66-D4D5A37820ED}"
 	ProjectSection(ProjectDependencies) = postProject
 		{98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616} = {98F0BF9B-3500-4AF1-9E34-2BE0C5B4A616}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4B068529-C216-44A4-91CC-CAB26DD38E63}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2075A0A5-68F2-48AD-9CDA-1F05BD920D1D}"
 	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Global
@@ -32,5 +32,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {093FBC47-EED3-4496-B6D1-F9551A0E1932}
 	EndGlobalSection
 EndGlobal

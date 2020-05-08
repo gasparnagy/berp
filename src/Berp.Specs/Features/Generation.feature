@@ -6,6 +6,10 @@ Scenario Outline: Generates parser to a target language
 	When the parser generation is performed using '<template>'
 	Then then the generation should be successful
 Examples: 
-	| template     |
-	| CSharp.razor |
-	| Ruby.razor   |
+	| template         |
+	| CSharp.razor     |
+	| Go.razor         |
+	| Java.razor       |
+	| Python.razor     |
+	| Ruby.razor       |
+	| TypeScript.razor |
