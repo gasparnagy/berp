@@ -138,7 +138,7 @@ public class @Model.ParserClassName<T> {
 
     private void addError(ParserContext context, ParserException error) {
         context.errors.add(error);
-        if (context.errors.size() > 10)
+        if (context.errors.size() > @Model.MaxCollectedError)
             throw new ParserException.CompositeParserException(context.errors);
     }
 
@@ -311,4 +311,26 @@ public class @Model.ParserClassName<T> {
         }
         void reset();
     }
+@if(Model.SimpleTokenMatcher)
+{
+<text>
+    public class TokenMatcher implements ITokenMatcher {
+    
+        @("@Override")
+        public void reset() {
+        }    
+</text>
+        foreach(var rule in Model.RuleSet.TokenRules)
+        {
+<text>
+        @("@Override")
+        public boolean match_@(rule.Name.Replace("#", ""))(Token token) {
+            return token.TokenType == TokenType.@(rule.Name.Replace("#", ""));
+        }
+</text>
+        }
+<text>
+    }
+</text>
+}
 }
