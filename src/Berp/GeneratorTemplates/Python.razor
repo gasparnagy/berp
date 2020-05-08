@@ -87,7 +87,7 @@ class @(Model.ParserClassName)(object):
 
     def add_error(self, context, error):
         context.errors.append(error)
-        if len(context.errors) > 10:
+        if len(context.errors) > @Model.MaxCollectedError:
             raise CompositeParserException(context.errors)
 
     def start_rule(self, context, rule_type):
@@ -188,3 +188,17 @@ class @(Model.ParserClassName)(object):
         except ParserException as e:
             self.add_error(context, e)
         return default_value
+
+@if(Model.SimpleTokenMatcher)
+{
+<text>class TokenMatcher(object):
+
+    def reset(self):
+        pass</text>
+        foreach(var rule in Model.RuleSet.TokenRules)
+        {
+<text>        
+    def match_@(rule.Name.Replace("#", ""))(self, token)
+        return token.token_type == '@(rule.Name.Replace("#", ""))'</text>      
+        }
+}
