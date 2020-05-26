@@ -5,16 +5,20 @@ Scenario: The Berp grammar parser can parse itself
 	When the input source is parsed with the BerpGrammarParserForTest parser 
 	Then the parsing should be successful
 
-Scenario: Lookahead with no skip tokens
+Scenario Outline: Lookahead with no skip tokens
 	Given the input source
 		"""
 		[
-			Tokens -> #A,#B,#C
+			Tokens -> #A,#B1,#B2,#C
 		]
 
 		Grammar := (B | C)+
-		B [->#B]:= (#A | #B)
+		B [-><expected>]:= (#A | #B1 | #B2)
 		C := (#A | #C)
 		"""
 	When the input source is compiled with the BerpGrammarParserForTest parser
 	Then the parsing should be successful
+Examples: 
+	| description       | expected   |
+	| single expected   | #B1        |
+	| multiple expected | #B1 \| #B2 |
