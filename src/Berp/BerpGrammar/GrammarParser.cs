@@ -67,8 +67,9 @@ namespace Berp.BerpGrammar
         GroupElement, // GroupElement! := #LParen RuleDefinitionElement+ #RParen
         TokenElement, // TokenElement := #Token
         RuleElement, // RuleElement := #Rule
-        LookAhead, // LookAhead! := #LBracket LookAheadTokenList? #Arrow LookAheadTokenList #RBracket
-        LookAheadTokenList, // LookAheadTokenList! := #Token (#AlternateOp #Token)*
+        LookAhead, // LookAhead! := #LBracket LookAheadTokenList1? #Arrow LookAheadTokenList2 #RBracket
+        LookAheadTokenList1, // LookAheadTokenList1! := #Token (#AlternateOp #Token)*
+        LookAheadTokenList2, // LookAheadTokenList2! := #Token (#AlternateOp #Token)*
         Settings, // Settings! := (#LBracket #EOL) Parameter* (#RBracket #EOL)
         Parameter, // Parameter! := #Rule #Arrow ParameterValue (#Comma ParameterValue)* #EOL
         ParameterValue, // ParameterValue := (#Rule | #Token | #Number)
@@ -435,8 +436,8 @@ namespace Berp.BerpGrammar
                 case 41:
                     newState = MatchTokenAt_41(token, context);
                     break;
-                case 43:
-                    newState = MatchTokenAt_43(token, context);
+                case 42:
+                    newState = MatchTokenAt_42(token, context);
                     break;
                 case 44:
                     newState = MatchTokenAt_44(token, context);
@@ -458,6 +459,9 @@ namespace Berp.BerpGrammar
                     break;
                 case 50:
                     newState = MatchTokenAt_50(token, context);
+                    break;
+                case 51:
+                    newState = MatchTokenAt_51(token, context);
                     break;
                 default:
                     throw new InvalidOperationException("Unknown state: " + state);
@@ -496,7 +500,7 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:0>Settings:0>__grp5:0>#LBracket:0
+        // Grammar:0>Settings:0>__grp6:0>#LBracket:0
         int MatchTokenAt_1(Token token, ParserContext context)
         {
             if (Match_EOL(context, token))
@@ -505,7 +509,7 @@ namespace Berp.BerpGrammar
                 return 2;
             }
             
-            const string stateComment = "State: 1 - Grammar:0>Settings:0>__grp5:0>#LBracket:0";
+            const string stateComment = "State: 1 - Grammar:0>Settings:0>__grp6:0>#LBracket:0";
             token.Detach();
             var expectedTokens = new string[] {"#EOL"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -519,7 +523,7 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:0>Settings:0>__grp5:1>#EOL:0
+        // Grammar:0>Settings:0>__grp6:1>#EOL:0
         int MatchTokenAt_2(Token token, ParserContext context)
         {
             if (Match_Rule(context, token))
@@ -534,7 +538,7 @@ namespace Berp.BerpGrammar
                 return 8;
             }
             
-            const string stateComment = "State: 2 - Grammar:0>Settings:0>__grp5:1>#EOL:0";
+            const string stateComment = "State: 2 - Grammar:0>Settings:0>__grp6:1>#EOL:0";
             token.Detach();
             var expectedTokens = new string[] {"#Rule", "#RBracket"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -604,7 +608,7 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:0>Settings:1>Parameter:2>ParameterValue:0>__alt8:0>#Rule:0
+        // Grammar:0>Settings:1>Parameter:2>ParameterValue:0>__alt9:0>#Rule:0
         int MatchTokenAt_5(Token token, ParserContext context)
         {
             if (Match_Comma(context, token))
@@ -618,7 +622,7 @@ namespace Berp.BerpGrammar
                 return 7;
             }
             
-            const string stateComment = "State: 5 - Grammar:0>Settings:1>Parameter:2>ParameterValue:0>__alt8:0>#Rule:0";
+            const string stateComment = "State: 5 - Grammar:0>Settings:1>Parameter:2>ParameterValue:0>__alt9:0>#Rule:0";
             token.Detach();
             var expectedTokens = new string[] {"#Comma", "#EOL"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -632,7 +636,7 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:0>Settings:1>Parameter:3>__grp7:0>#Comma:0
+        // Grammar:0>Settings:1>Parameter:3>__grp8:0>#Comma:0
         int MatchTokenAt_6(Token token, ParserContext context)
         {
             if (Match_Rule(context, token))
@@ -651,7 +655,7 @@ namespace Berp.BerpGrammar
                 return 5;
             }
             
-            const string stateComment = "State: 6 - Grammar:0>Settings:1>Parameter:3>__grp7:0>#Comma:0";
+            const string stateComment = "State: 6 - Grammar:0>Settings:1>Parameter:3>__grp8:0>#Comma:0";
             token.Detach();
             var expectedTokens = new string[] {"#Rule", "#Token", "#Number"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -696,7 +700,7 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:0>Settings:2>__grp6:0>#RBracket:0
+        // Grammar:0>Settings:2>__grp7:0>#RBracket:0
         int MatchTokenAt_8(Token token, ParserContext context)
         {
             if (Match_EOL(context, token))
@@ -705,7 +709,7 @@ namespace Berp.BerpGrammar
                 return 9;
             }
             
-            const string stateComment = "State: 8 - Grammar:0>Settings:2>__grp6:0>#RBracket:0";
+            const string stateComment = "State: 8 - Grammar:0>Settings:2>__grp7:0>#RBracket:0";
             token.Detach();
             var expectedTokens = new string[] {"#EOL"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -719,7 +723,7 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:0>Settings:2>__grp6:1>#EOL:0
+        // Grammar:0>Settings:2>__grp7:1>#EOL:0
         int MatchTokenAt_9(Token token, ParserContext context)
         {
             if (Match_Rule(context, token))
@@ -730,7 +734,7 @@ namespace Berp.BerpGrammar
                 return 10;
             }
             
-            const string stateComment = "State: 9 - Grammar:0>Settings:2>__grp6:1>#EOL:0";
+            const string stateComment = "State: 9 - Grammar:0>Settings:2>__grp7:1>#EOL:0";
             token.Detach();
             var expectedTokens = new string[] {"#Rule"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -761,7 +765,7 @@ namespace Berp.BerpGrammar
             if (Match_Definition(context, token))
             {
                 Build(context, token);
-                return 18;
+                return 19;
             }
             
             const string stateComment = "State: 10 - Grammar:1>RuleDefinition:0>#Rule:0";
@@ -790,7 +794,7 @@ namespace Berp.BerpGrammar
             if (Match_Definition(context, token))
             {
                 Build(context, token);
-                return 18;
+                return 19;
             }
             
             const string stateComment = "State: 11 - Grammar:1>RuleDefinition:1>#Production:0";
@@ -812,7 +816,7 @@ namespace Berp.BerpGrammar
         {
             if (Match_Token(context, token))
             {
-                StartRule(context, RuleType.LookAheadTokenList);
+                StartRule(context, RuleType.LookAheadTokenList1);
                 Build(context, token);
                 return 13;
             }
@@ -836,7 +840,7 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList:0>#Token:0
+        // Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList1:0>#Token:0
         int MatchTokenAt_13(Token token, ParserContext context)
         {
             if (Match_AlternateOp(context, token))
@@ -846,12 +850,12 @@ namespace Berp.BerpGrammar
             }
             if (Match_Arrow(context, token))
             {
-                EndRule(context, RuleType.LookAheadTokenList);
+                EndRule(context, RuleType.LookAheadTokenList1);
                 Build(context, token);
                 return 15;
             }
             
-            const string stateComment = "State: 13 - Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList:0>#Token:0";
+            const string stateComment = "State: 13 - Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList1:0>#Token:0";
             token.Detach();
             var expectedTokens = new string[] {"#AlternateOp", "#Arrow"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -865,7 +869,7 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0
+        // Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList1:1>__grp4:0>#AlternateOp:0
         int MatchTokenAt_14(Token token, ParserContext context)
         {
             if (Match_Token(context, token))
@@ -874,7 +878,7 @@ namespace Berp.BerpGrammar
                 return 13;
             }
             
-            const string stateComment = "State: 14 - Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList:1>__grp4:0>#AlternateOp:0";
+            const string stateComment = "State: 14 - Grammar:1>RuleDefinition:2>LookAhead:1>LookAheadTokenList1:1>__grp4:0>#AlternateOp:0";
             token.Detach();
             var expectedTokens = new string[] {"#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -893,7 +897,7 @@ namespace Berp.BerpGrammar
         {
             if (Match_Token(context, token))
             {
-                StartRule(context, RuleType.LookAheadTokenList);
+                StartRule(context, RuleType.LookAheadTokenList2);
                 Build(context, token);
                 return 16;
             }
@@ -912,22 +916,22 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:2>LookAhead:3>LookAheadTokenList:0>#Token:0
+        // Grammar:1>RuleDefinition:2>LookAhead:3>LookAheadTokenList2:0>#Token:0
         int MatchTokenAt_16(Token token, ParserContext context)
         {
             if (Match_AlternateOp(context, token))
             {
                 Build(context, token);
-                return 14;
+                return 17;
             }
             if (Match_RBracket(context, token))
             {
-                EndRule(context, RuleType.LookAheadTokenList);
+                EndRule(context, RuleType.LookAheadTokenList2);
                 Build(context, token);
-                return 17;
+                return 18;
             }
             
-            const string stateComment = "State: 16 - Grammar:1>RuleDefinition:2>LookAhead:3>LookAheadTokenList:0>#Token:0";
+            const string stateComment = "State: 16 - Grammar:1>RuleDefinition:2>LookAhead:3>LookAheadTokenList2:0>#Token:0";
             token.Detach();
             var expectedTokens = new string[] {"#AlternateOp", "#RBracket"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -941,19 +945,18 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:2>LookAhead:4>#RBracket:0
+        // Grammar:1>RuleDefinition:2>LookAhead:3>LookAheadTokenList2:1>__grp5:0>#AlternateOp:0
         int MatchTokenAt_17(Token token, ParserContext context)
         {
-            if (Match_Definition(context, token))
+            if (Match_Token(context, token))
             {
-                EndRule(context, RuleType.LookAhead);
                 Build(context, token);
-                return 18;
+                return 16;
             }
             
-            const string stateComment = "State: 17 - Grammar:1>RuleDefinition:2>LookAhead:4>#RBracket:0";
+            const string stateComment = "State: 17 - Grammar:1>RuleDefinition:2>LookAhead:3>LookAheadTokenList2:1>__grp5:0>#AlternateOp:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Definition"};
+            var expectedTokens = new string[] {"#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -965,42 +968,19 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:3>#Definition:0
+        // Grammar:1>RuleDefinition:2>LookAhead:4>#RBracket:0
         int MatchTokenAt_18(Token token, ParserContext context)
         {
-            if (Match_LParen(context, token))
+            if (Match_Definition(context, token))
             {
-                if (LookAhead_0(context, token))
-                {
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.AlternateElement);
+                EndRule(context, RuleType.LookAhead);
                 Build(context, token);
                 return 19;
-                }
-            }
-            if (Match_LParen(context, token))
-            {
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.GroupElement);
-                Build(context, token);
-                return 24;
-            }
-            if (Match_Token(context, token))
-            {
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 49;
-            }
-            if (Match_Rule(context, token))
-            {
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 49;
             }
             
-            const string stateComment = "State: 18 - Grammar:1>RuleDefinition:3>#Definition:0";
+            const string stateComment = "State: 18 - Grammar:1>RuleDefinition:2>LookAhead:4>#RBracket:0";
             token.Detach();
-            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule"};
+            var expectedTokens = new string[] {"#Definition"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1012,23 +992,42 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
+        // Grammar:1>RuleDefinition:3>#Definition:0
         int MatchTokenAt_19(Token token, ParserContext context)
         {
-            if (Match_Rule(context, token))
+            if (Match_LParen(context, token))
             {
+                if (LookAhead_0(context, token))
+                {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
                 return 20;
+                }
+            }
+            if (Match_LParen(context, token))
+            {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.GroupElement);
+                Build(context, token);
+                return 25;
             }
             if (Match_Token(context, token))
             {
+                StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 20;
+                return 50;
+            }
+            if (Match_Rule(context, token))
+            {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 50;
             }
             
-            const string stateComment = "State: 19 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0";
+            const string stateComment = "State: 19 - Grammar:1>RuleDefinition:3>#Definition:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1040,23 +1039,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
+        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
         int MatchTokenAt_20(Token token, ParserContext context)
         {
-            if (Match_AlternateOp(context, token))
+            if (Match_Rule(context, token))
             {
                 Build(context, token);
                 return 21;
             }
-            if (Match_RParen(context, token))
+            if (Match_Token(context, token))
             {
                 Build(context, token);
-                return 22;
+                return 21;
             }
             
-            const string stateComment = "State: 20 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0";
+            const string stateComment = "State: 20 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AlternateOp", "#RParen"};
+            var expectedTokens = new string[] {"#Rule", "#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1068,23 +1067,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
+        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
         int MatchTokenAt_21(Token token, ParserContext context)
         {
-            if (Match_Rule(context, token))
+            if (Match_AlternateOp(context, token))
             {
                 Build(context, token);
-                return 20;
+                return 22;
             }
-            if (Match_Token(context, token))
+            if (Match_RParen(context, token))
             {
                 Build(context, token);
-                return 20;
+                return 23;
             }
             
-            const string stateComment = "State: 21 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0";
+            const string stateComment = "State: 21 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#AlternateOp", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1096,75 +1095,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
+        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
         int MatchTokenAt_22(Token token, ParserContext context)
         {
-            if (Match_AnyMultiplier(context, token))
+            if (Match_Rule(context, token))
             {
-                EndRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 23;
-            }
-            if (Match_OneOrMoreMultiplier(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 23;
-            }
-            if (Match_OneOrZeroMultiplier(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 23;
-            }
-            if (Match_LParen(context, token))
-            {
-                if (LookAhead_0(context, token))
-                {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 19;
-                }
-            }
-            if (Match_LParen(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.GroupElement);
-                Build(context, token);
-                return 24;
+                return 21;
             }
             if (Match_Token(context, token))
             {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 49;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 49;
-            }
-            if (Match_EOL(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 50;
+                return 21;
             }
             
-            const string stateComment = "State: 22 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0";
+            const string stateComment = "State: 22 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"};
+            var expectedTokens = new string[] {"#Rule", "#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1176,52 +1123,75 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
+        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
         int MatchTokenAt_23(Token token, ParserContext context)
         {
+            if (Match_AnyMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 24;
+            }
+            if (Match_OneOrMoreMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 24;
+            }
+            if (Match_OneOrZeroMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 24;
+            }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 19;
+                return 20;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 24;
+                return 25;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 49;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 49;
-            }
-            if (Match_EOL(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
                 return 50;
             }
+            if (Match_Rule(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 50;
+            }
+            if (Match_EOL(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 51;
+            }
             
-            const string stateComment = "State: 23 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0";
+            const string stateComment = "State: 23 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule", "#EOL"};
+            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1233,42 +1203,52 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
+        // Grammar:1>RuleDefinition:4>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
         int MatchTokenAt_24(Token token, ParserContext context)
         {
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 25;
+                return 20;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 30;
+                return 25;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 47;
+                return 50;
             }
             if (Match_Rule(context, token))
             {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 47;
+                return 50;
+            }
+            if (Match_EOL(context, token))
+            {
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 51;
             }
             
-            const string stateComment = "State: 24 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0";
+            const string stateComment = "State: 24 - Grammar:1>RuleDefinition:4>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0";
             token.Detach();
-            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule"};
+            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule", "#EOL"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1280,23 +1260,42 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
         int MatchTokenAt_25(Token token, ParserContext context)
         {
-            if (Match_Rule(context, token))
+            if (Match_LParen(context, token))
             {
+                if (LookAhead_0(context, token))
+                {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
                 return 26;
+                }
+            }
+            if (Match_LParen(context, token))
+            {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.GroupElement);
+                Build(context, token);
+                return 31;
             }
             if (Match_Token(context, token))
             {
+                StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 26;
+                return 48;
+            }
+            if (Match_Rule(context, token))
+            {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 48;
             }
             
-            const string stateComment = "State: 25 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0";
+            const string stateComment = "State: 25 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1308,23 +1307,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
         int MatchTokenAt_26(Token token, ParserContext context)
         {
-            if (Match_AlternateOp(context, token))
+            if (Match_Rule(context, token))
             {
                 Build(context, token);
                 return 27;
             }
-            if (Match_RParen(context, token))
+            if (Match_Token(context, token))
             {
                 Build(context, token);
-                return 28;
+                return 27;
             }
             
-            const string stateComment = "State: 26 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0";
+            const string stateComment = "State: 26 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AlternateOp", "#RParen"};
+            var expectedTokens = new string[] {"#Rule", "#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1336,23 +1335,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
         int MatchTokenAt_27(Token token, ParserContext context)
         {
-            if (Match_Rule(context, token))
+            if (Match_AlternateOp(context, token))
             {
                 Build(context, token);
-                return 26;
+                return 28;
             }
-            if (Match_Token(context, token))
+            if (Match_RParen(context, token))
             {
                 Build(context, token);
-                return 26;
+                return 29;
             }
             
-            const string stateComment = "State: 27 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0";
+            const string stateComment = "State: 27 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#AlternateOp", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1364,75 +1363,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
         int MatchTokenAt_28(Token token, ParserContext context)
         {
-            if (Match_AnyMultiplier(context, token))
+            if (Match_Rule(context, token))
             {
-                EndRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 29;
-            }
-            if (Match_OneOrMoreMultiplier(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 29;
-            }
-            if (Match_OneOrZeroMultiplier(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 29;
-            }
-            if (Match_LParen(context, token))
-            {
-                if (LookAhead_0(context, token))
-                {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 25;
-                }
-            }
-            if (Match_LParen(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.GroupElement);
-                Build(context, token);
-                return 30;
+                return 27;
             }
             if (Match_Token(context, token))
             {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 47;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 47;
-            }
-            if (Match_RParen(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 48;
+                return 27;
             }
             
-            const string stateComment = "State: 28 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0";
+            const string stateComment = "State: 28 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
+            var expectedTokens = new string[] {"#Rule", "#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1444,52 +1391,75 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
         int MatchTokenAt_29(Token token, ParserContext context)
         {
+            if (Match_AnyMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 30;
+            }
+            if (Match_OneOrMoreMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 30;
+            }
+            if (Match_OneOrZeroMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 30;
+            }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 25;
+                return 26;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 30;
+                return 31;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 47;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 47;
-            }
-            if (Match_RParen(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
                 return 48;
             }
+            if (Match_Rule(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 48;
+            }
+            if (Match_RParen(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 49;
+            }
             
-            const string stateComment = "State: 29 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0";
+            const string stateComment = "State: 29 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule", "#RParen"};
+            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1501,42 +1471,52 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
         int MatchTokenAt_30(Token token, ParserContext context)
         {
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 31;
+                return 26;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 36;
+                return 31;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 45;
+                return 48;
             }
             if (Match_Rule(context, token))
             {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 45;
+                return 48;
+            }
+            if (Match_RParen(context, token))
+            {
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 49;
             }
             
-            const string stateComment = "State: 30 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0";
+            const string stateComment = "State: 30 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0";
             token.Detach();
-            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule"};
+            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1548,23 +1528,42 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
         int MatchTokenAt_31(Token token, ParserContext context)
         {
-            if (Match_Rule(context, token))
+            if (Match_LParen(context, token))
             {
+                if (LookAhead_0(context, token))
+                {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
                 return 32;
+                }
+            }
+            if (Match_LParen(context, token))
+            {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.GroupElement);
+                Build(context, token);
+                return 37;
             }
             if (Match_Token(context, token))
             {
+                StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 32;
+                return 46;
+            }
+            if (Match_Rule(context, token))
+            {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 46;
             }
             
-            const string stateComment = "State: 31 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0";
+            const string stateComment = "State: 31 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1576,23 +1575,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
         int MatchTokenAt_32(Token token, ParserContext context)
         {
-            if (Match_AlternateOp(context, token))
+            if (Match_Rule(context, token))
             {
                 Build(context, token);
                 return 33;
             }
-            if (Match_RParen(context, token))
+            if (Match_Token(context, token))
             {
                 Build(context, token);
-                return 34;
+                return 33;
             }
             
-            const string stateComment = "State: 32 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0";
+            const string stateComment = "State: 32 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AlternateOp", "#RParen"};
+            var expectedTokens = new string[] {"#Rule", "#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1604,23 +1603,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
         int MatchTokenAt_33(Token token, ParserContext context)
         {
-            if (Match_Rule(context, token))
+            if (Match_AlternateOp(context, token))
             {
                 Build(context, token);
-                return 32;
+                return 34;
             }
-            if (Match_Token(context, token))
+            if (Match_RParen(context, token))
             {
                 Build(context, token);
-                return 32;
+                return 35;
             }
             
-            const string stateComment = "State: 33 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0";
+            const string stateComment = "State: 33 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#AlternateOp", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1632,75 +1631,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
         int MatchTokenAt_34(Token token, ParserContext context)
         {
-            if (Match_AnyMultiplier(context, token))
+            if (Match_Rule(context, token))
             {
-                EndRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 35;
-            }
-            if (Match_OneOrMoreMultiplier(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 35;
-            }
-            if (Match_OneOrZeroMultiplier(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 35;
-            }
-            if (Match_LParen(context, token))
-            {
-                if (LookAhead_0(context, token))
-                {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 31;
-                }
-            }
-            if (Match_LParen(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.GroupElement);
-                Build(context, token);
-                return 36;
+                return 33;
             }
             if (Match_Token(context, token))
             {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 45;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 45;
-            }
-            if (Match_RParen(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 46;
+                return 33;
             }
             
-            const string stateComment = "State: 34 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0";
+            const string stateComment = "State: 34 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
+            var expectedTokens = new string[] {"#Rule", "#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1712,52 +1659,75 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
         int MatchTokenAt_35(Token token, ParserContext context)
         {
+            if (Match_AnyMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 36;
+            }
+            if (Match_OneOrMoreMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 36;
+            }
+            if (Match_OneOrZeroMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 36;
+            }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 31;
+                return 32;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 36;
+                return 37;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 45;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 45;
-            }
-            if (Match_RParen(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
                 return 46;
             }
+            if (Match_Rule(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 46;
+            }
+            if (Match_RParen(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 47;
+            }
             
-            const string stateComment = "State: 35 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0";
+            const string stateComment = "State: 35 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule", "#RParen"};
+            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1769,42 +1739,52 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
         int MatchTokenAt_36(Token token, ParserContext context)
         {
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 37;
+                return 32;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 42;
+                return 37;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 43;
+                return 46;
             }
             if (Match_Rule(context, token))
             {
+                EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 43;
+                return 46;
+            }
+            if (Match_RParen(context, token))
+            {
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 47;
             }
             
-            const string stateComment = "State: 36 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0";
+            const string stateComment = "State: 36 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0";
             token.Detach();
-            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule"};
+            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1816,23 +1796,42 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0
         int MatchTokenAt_37(Token token, ParserContext context)
         {
-            if (Match_Rule(context, token))
+            if (Match_LParen(context, token))
             {
+                if (LookAhead_0(context, token))
+                {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
                 return 38;
+                }
+            }
+            if (Match_LParen(context, token))
+            {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.GroupElement);
+                Build(context, token);
+                return 43;
             }
             if (Match_Token(context, token))
             {
+                StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 38;
+                return 44;
+            }
+            if (Match_Rule(context, token))
+            {
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 44;
             }
             
-            const string stateComment = "State: 37 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0";
+            const string stateComment = "State: 37 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:0>#LParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1844,23 +1843,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0
         int MatchTokenAt_38(Token token, ParserContext context)
         {
-            if (Match_AlternateOp(context, token))
+            if (Match_Rule(context, token))
             {
                 Build(context, token);
                 return 39;
             }
-            if (Match_RParen(context, token))
+            if (Match_Token(context, token))
             {
                 Build(context, token);
-                return 40;
+                return 39;
             }
             
-            const string stateComment = "State: 38 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0";
+            const string stateComment = "State: 38 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:0>#LParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AlternateOp", "#RParen"};
+            var expectedTokens = new string[] {"#Rule", "#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1872,23 +1871,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0
         int MatchTokenAt_39(Token token, ParserContext context)
         {
-            if (Match_Rule(context, token))
+            if (Match_AlternateOp(context, token))
             {
                 Build(context, token);
-                return 38;
+                return 40;
             }
-            if (Match_Token(context, token))
+            if (Match_RParen(context, token))
             {
                 Build(context, token);
-                return 38;
+                return 41;
             }
             
-            const string stateComment = "State: 39 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0";
+            const string stateComment = "State: 39 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:0>AlternateElementItem:0>__alt3:0>#Rule:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Rule", "#Token"};
+            var expectedTokens = new string[] {"#AlternateOp", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1900,75 +1899,23 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0
         int MatchTokenAt_40(Token token, ParserContext context)
         {
-            if (Match_AnyMultiplier(context, token))
+            if (Match_Rule(context, token))
             {
-                EndRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 41;
-            }
-            if (Match_OneOrMoreMultiplier(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 41;
-            }
-            if (Match_OneOrZeroMultiplier(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 41;
-            }
-            if (Match_LParen(context, token))
-            {
-                if (LookAhead_0(context, token))
-                {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.AlternateElement);
-                Build(context, token);
-                return 37;
-                }
-            }
-            if (Match_LParen(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.GroupElement);
-                Build(context, token);
-                return 42;
+                return 39;
             }
             if (Match_Token(context, token))
             {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 43;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 43;
-            }
-            if (Match_RParen(context, token))
-            {
-                EndRule(context, RuleType.AlternateElement);
-                EndRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 44;
+                return 39;
             }
             
-            const string stateComment = "State: 40 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0";
+            const string stateComment = "State: 40 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:1>AlternateElementBody:1>__grp2:0>#AlternateOp:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
+            var expectedTokens = new string[] {"#Rule", "#Token"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -1980,52 +1927,75 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0
         int MatchTokenAt_41(Token token, ParserContext context)
         {
+            if (Match_AnyMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 42;
+            }
+            if (Match_OneOrMoreMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 42;
+            }
+            if (Match_OneOrZeroMultiplier(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 42;
+            }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 37;
+                return 38;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 42;
+                return 43;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.AlternateElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 43;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 43;
-            }
-            if (Match_RParen(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
                 return 44;
             }
+            if (Match_Rule(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 44;
+            }
+            if (Match_RParen(context, token))
+            {
+                EndRule(context, RuleType.AlternateElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 45;
+            }
             
-            const string stateComment = "State: 41 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0";
+            const string stateComment = "State: 41 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:0>AlternateElement:2>#RParen:0";
             token.Detach();
-            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule", "#RParen"};
+            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -2037,24 +2007,9 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
-        int MatchTokenAt_43(Token token, ParserContext context)
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0
+        int MatchTokenAt_42(Token token, ParserContext context)
         {
-            if (Match_AnyMultiplier(context, token))
-            {
-                Build(context, token);
-                return 41;
-            }
-            if (Match_OneOrMoreMultiplier(context, token))
-            {
-                Build(context, token);
-                return 41;
-            }
-            if (Match_OneOrZeroMultiplier(context, token))
-            {
-                Build(context, token);
-                return 41;
-            }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
@@ -2063,7 +2018,7 @@ namespace Berp.BerpGrammar
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 37;
+                return 38;
                 }
             }
             if (Match_LParen(context, token))
@@ -2072,110 +2027,102 @@ namespace Berp.BerpGrammar
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 42;
+                return 43;
             }
             if (Match_Token(context, token))
             {
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 43;
+                return 44;
             }
             if (Match_Rule(context, token))
             {
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 43;
+                return 44;
             }
             if (Match_RParen(context, token))
             {
                 EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 44;
+                return 45;
             }
             
-            const string stateComment = "State: 43 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0";
+            const string stateComment = "State: 42 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:1>RuleDefinitionElement:1>RuleDefinitionElement_Multiplier:0>__alt1:0>#AnyMultiplier:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
+            var expectedTokens = new string[] {"#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
                 throw error;
             
             AddError(context, error);
-            return 43;
+            return 42;
 
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
         int MatchTokenAt_44(Token token, ParserContext context)
         {
             if (Match_AnyMultiplier(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 35;
+                return 42;
             }
             if (Match_OneOrMoreMultiplier(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 35;
+                return 42;
             }
             if (Match_OneOrZeroMultiplier(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 35;
+                return 42;
             }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 31;
+                return 38;
                 }
             }
             if (Match_LParen(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 36;
+                return 43;
             }
             if (Match_Token(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 45;
+                return 44;
             }
             if (Match_Rule(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 45;
+                return 44;
             }
             if (Match_RParen(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 46;
+                return 45;
             }
             
-            const string stateComment = "State: 44 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0";
+            const string stateComment = "State: 44 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0";
             token.Detach();
             var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -2189,65 +2136,73 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
         int MatchTokenAt_45(Token token, ParserContext context)
         {
             if (Match_AnyMultiplier(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 35;
+                return 36;
             }
             if (Match_OneOrMoreMultiplier(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 35;
+                return 36;
             }
             if (Match_OneOrZeroMultiplier(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 35;
+                return 36;
             }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 31;
+                return 32;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 36;
+                return 37;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 45;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 45;
-            }
-            if (Match_RParen(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
                 return 46;
             }
+            if (Match_Rule(context, token))
+            {
+                EndRule(context, RuleType.GroupElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 46;
+            }
+            if (Match_RParen(context, token))
+            {
+                EndRule(context, RuleType.GroupElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 47;
+            }
             
-            const string stateComment = "State: 45 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0";
+            const string stateComment = "State: 45 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0";
             token.Detach();
             var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -2261,73 +2216,65 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
         int MatchTokenAt_46(Token token, ParserContext context)
         {
             if (Match_AnyMultiplier(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 29;
+                return 36;
             }
             if (Match_OneOrMoreMultiplier(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 29;
+                return 36;
             }
             if (Match_OneOrZeroMultiplier(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 29;
+                return 36;
             }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 25;
+                return 32;
                 }
             }
             if (Match_LParen(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 30;
+                return 37;
             }
             if (Match_Token(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 47;
+                return 46;
             }
             if (Match_Rule(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 47;
+                return 46;
             }
             if (Match_RParen(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 48;
+                return 47;
             }
             
-            const string stateComment = "State: 46 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0";
+            const string stateComment = "State: 46 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0";
             token.Detach();
             var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -2341,65 +2288,73 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
         int MatchTokenAt_47(Token token, ParserContext context)
         {
             if (Match_AnyMultiplier(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 29;
+                return 30;
             }
             if (Match_OneOrMoreMultiplier(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 29;
+                return 30;
             }
             if (Match_OneOrZeroMultiplier(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 29;
+                return 30;
             }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 25;
+                return 26;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 30;
+                return 31;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 47;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 47;
-            }
-            if (Match_RParen(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
                 return 48;
             }
+            if (Match_Rule(context, token))
+            {
+                EndRule(context, RuleType.GroupElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 48;
+            }
+            if (Match_RParen(context, token))
+            {
+                EndRule(context, RuleType.GroupElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 49;
+            }
             
-            const string stateComment = "State: 47 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0";
+            const string stateComment = "State: 47 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0";
             token.Detach();
             var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -2413,75 +2368,67 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
         int MatchTokenAt_48(Token token, ParserContext context)
         {
             if (Match_AnyMultiplier(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 23;
+                return 30;
             }
             if (Match_OneOrMoreMultiplier(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 23;
+                return 30;
             }
             if (Match_OneOrZeroMultiplier(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 23;
+                return 30;
             }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 19;
+                return 26;
                 }
             }
             if (Match_LParen(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 24;
+                return 31;
             }
             if (Match_Token(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 49;
+                return 48;
             }
             if (Match_Rule(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 49;
+                return 48;
             }
-            if (Match_EOL(context, token))
+            if (Match_RParen(context, token))
             {
-                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
-                return 50;
+                return 49;
             }
             
-            const string stateComment = "State: 48 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0";
+            const string stateComment = "State: 48 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:2>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0";
             token.Detach();
-            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"};
+            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#RParen"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)
@@ -2493,65 +2440,73 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0
         int MatchTokenAt_49(Token token, ParserContext context)
         {
             if (Match_AnyMultiplier(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 23;
+                return 24;
             }
             if (Match_OneOrMoreMultiplier(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 23;
+                return 24;
             }
             if (Match_OneOrZeroMultiplier(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 23;
+                return 24;
             }
             if (Match_LParen(context, token))
             {
                 if (LookAhead_0(context, token))
                 {
+                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.AlternateElement);
                 Build(context, token);
-                return 19;
+                return 20;
                 }
             }
             if (Match_LParen(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.GroupElement);
                 Build(context, token);
-                return 24;
+                return 25;
             }
             if (Match_Token(context, token))
             {
+                EndRule(context, RuleType.GroupElement);
                 EndRule(context, RuleType.RuleDefinitionElement);
                 StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 49;
-            }
-            if (Match_Rule(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
-                StartRule(context, RuleType.RuleDefinitionElement);
-                Build(context, token);
-                return 49;
-            }
-            if (Match_EOL(context, token))
-            {
-                EndRule(context, RuleType.RuleDefinitionElement);
                 Build(context, token);
                 return 50;
             }
+            if (Match_Rule(context, token))
+            {
+                EndRule(context, RuleType.GroupElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 50;
+            }
+            if (Match_EOL(context, token))
+            {
+                EndRule(context, RuleType.GroupElement);
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 51;
+            }
             
-            const string stateComment = "State: 49 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0";
+            const string stateComment = "State: 49 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:3>GroupElement:3>#RParen:0";
             token.Detach();
             var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -2565,14 +2520,86 @@ namespace Berp.BerpGrammar
         }
         
         
-        // Grammar:1>RuleDefinition:6>#EOL:0
+        // Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0
         int MatchTokenAt_50(Token token, ParserContext context)
+        {
+            if (Match_AnyMultiplier(context, token))
+            {
+                Build(context, token);
+                return 24;
+            }
+            if (Match_OneOrMoreMultiplier(context, token))
+            {
+                Build(context, token);
+                return 24;
+            }
+            if (Match_OneOrZeroMultiplier(context, token))
+            {
+                Build(context, token);
+                return 24;
+            }
+            if (Match_LParen(context, token))
+            {
+                if (LookAhead_0(context, token))
+                {
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.AlternateElement);
+                Build(context, token);
+                return 20;
+                }
+            }
+            if (Match_LParen(context, token))
+            {
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.GroupElement);
+                Build(context, token);
+                return 25;
+            }
+            if (Match_Token(context, token))
+            {
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 50;
+            }
+            if (Match_Rule(context, token))
+            {
+                EndRule(context, RuleType.RuleDefinitionElement);
+                StartRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 50;
+            }
+            if (Match_EOL(context, token))
+            {
+                EndRule(context, RuleType.RuleDefinitionElement);
+                Build(context, token);
+                return 51;
+            }
+            
+            const string stateComment = "State: 50 - Grammar:1>RuleDefinition:5>RuleDefinitionElement:0>RuleDefinitionElement_Core:0>__alt0:1>TokenElement:0>#Token:0";
+            token.Detach();
+            var expectedTokens = new string[] {"#AnyMultiplier", "#OneOrMoreMultiplier", "#OneOrZeroMultiplier", "#LParen", "#Token", "#Rule", "#EOL"};
+            var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
+                : new UnexpectedTokenException(token, expectedTokens, stateComment);
+            if (StopAtFirstError)
+                throw error;
+            
+            AddError(context, error);
+            return 50;
+
+        }
+        
+        
+        // Grammar:1>RuleDefinition:6>#EOL:0
+        int MatchTokenAt_51(Token token, ParserContext context)
         {
             if (Match_EOF(context, token))
             {
                 EndRule(context, RuleType.RuleDefinition);
                 Build(context, token);
-                return 42;
+                return 43;
             }
             if (Match_Rule(context, token))
             {
@@ -2582,7 +2609,7 @@ namespace Berp.BerpGrammar
                 return 10;
             }
             
-            const string stateComment = "State: 50 - Grammar:1>RuleDefinition:6>#EOL:0";
+            const string stateComment = "State: 51 - Grammar:1>RuleDefinition:6>#EOL:0";
             token.Detach();
             var expectedTokens = new string[] {"#EOF", "#Rule"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
@@ -2591,7 +2618,7 @@ namespace Berp.BerpGrammar
                 throw error;
             
             AddError(context, error);
-            return 50;
+            return 51;
 
         }
         

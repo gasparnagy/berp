@@ -19,8 +19,9 @@ AlternateElementItem := (#Rule | #Token)
 GroupElement! := #LParen RuleDefinitionElement+ #RParen
 TokenElement := #Token
 RuleElement := #Rule
-LookAhead! := #LBracket LookAheadTokenList? #Arrow LookAheadTokenList #RBracket
-LookAheadTokenList! := #Token (#AlternateOp #Token)*
+LookAhead! := #LBracket LookAheadTokenList1? #Arrow LookAheadTokenList2 #RBracket
+LookAheadTokenList1! := #Token (#AlternateOp #Token)*
+LookAheadTokenList2! := #Token (#AlternateOp #Token)*
 
 Settings! := (#LBracket #EOL) Parameter* (#RBracket #EOL)
 Parameter! := #Rule #Arrow ParameterValue (#Comma ParameterValue)* #EOL

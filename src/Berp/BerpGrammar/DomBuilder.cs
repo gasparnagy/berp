@@ -70,7 +70,8 @@ namespace Berp.BerpGrammar
                     firstRule = false;
                     return rule;
                 }
-                case RuleType.LookAheadTokenList:
+                case RuleType.LookAheadTokenList1:
+                case RuleType.LookAheadTokenList2:
                 {
                     var tokens = astNode.GetAllSubNodes().Cast<Token>().ToArray();
                     return tokens;
