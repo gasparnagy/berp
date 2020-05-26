@@ -1,21 +1,29 @@
 ﻿using Berp.Specs.BerpGrammarParserForTest;
 using Berp.Specs.Support;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using TechTalk.SpecFlow;
 using FluentAssertions;
 using Berp.BerpGrammar;
+using Xunit.Abstractions;
 
 namespace Berp.Specs.StepDefinitions
 {
     [Binding]
     public class StepDefinitions
     {
+        private readonly ITestOutputHelper testOutputHelper;
         private string sourceContent;
         private bool stopAtFirstError = false;
         private CompositeParserException parsingError = null;
-        private RuleSet ast;
+        private RuleSet ruleSet;
+
+        public StepDefinitions(ITestOutputHelper testOutputHelper)
+        {
+            this.testOutputHelper = testOutputHelper;
+        }
 
         [Given("the input source from {string}")]
         public void GivenTheInputSourceFrom(string fileName)
@@ -36,15 +44,13 @@ namespace Berp.Specs.StepDefinitions
             stopAtFirstError = true;
         }
 
-        [When("the input source is parsed with the BerpGrammarParserForTest parser")]
-        public void WhenTheInputSourceIsParsedWithTheBerpGrammarParserForTestParser()
+        private void ParseWithErrorHandling(Action<Parser> doParsing)
         {
             var parser = new BerpGrammar.Parser();
             parser.StopAtFirstError = stopAtFirstError;
             try
             {
-                ast = parser.Parse(new BerpGrammar.TokenScanner(new StringReader(sourceContent)), new TokenMatcher(), new AstBuilderForTest());
-                Console.WriteLine(ast);
+                doParsing(parser);
             }
             catch (CompositeParserException parserEx)
             {
@@ -53,12 +59,61 @@ namespace Berp.Specs.StepDefinitions
             }
             catch (ParserException ex)
             {
-                parsingError = new CompositeParserException(new []{ ex });
+                parsingError = new CompositeParserException(new[] { ex });
                 Console.WriteLine(parsingError.GetErrorMessage());
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException("unhandled parsing error", ex);
+            }
+        }
+
+        [When("the input source is parsed with the BerpGrammarParserForTest parser")]
+        public void WhenTheInputSourceIsParsedWithTheBerpGrammarParserForTestParser()
+        {
+            ParseWithErrorHandling(parser =>
+            {
+                ruleSet = parser.Parse(new TokenScanner(new StringReader(sourceContent)),
+                    new TokenMatcher(), new AstBuilderForTest());
+                testOutputHelper.WriteLine(ruleSet.ToString());
+            });
+        }
+
+        [When("the input source is compiled with the BerpGrammarParserForTest parser")]
+        public void WhenTheInputSourceIsCompiledWithTheBerpGrammarParserForTestParser()
+        {
+            ParseWithErrorHandling(parser =>
+            {
+                ruleSet = parser.Parse(new TokenScanner(new StringReader(sourceContent)));
+                testOutputHelper.WriteLine(ruleSet.ToString());
+
+                var states = StateCalculator.CalculateStates(ruleSet);
+                testOutputHelper.WriteLine("{0} states calculated for the parser.", states.Count);
+                foreach (var state in states.Values)
+                {
+                    PrintStateTransitions(state);
+                    PrintStateBranches(state.Branches, state.Id);
+                }
+            });
+        }
+
+        private void PrintStateTransitions(State state)
+        {
+            testOutputHelper.WriteLine("{0}: {1}", state.Id, state.Comment);
+            foreach (var transition in state.Transitions)
+            {
+                testOutputHelper.WriteLine("    {0} -> {1}", transition.TokenType, transition.TargetState);
+            }
+        }
+
+        private void PrintStateBranches(List<Branch> branches, int state)
+        {
+            testOutputHelper.WriteLine("{0}:", state);
+            testOutputHelper.WriteLine("");
+            foreach (var branch in branches.OrderBy(b => b.TokenType))
+            {
+                testOutputHelper.WriteLine("    {0}", branch);
+                testOutputHelper.WriteLine("    \t{0}", branch.GetProductionsText());
             }
         }
 
@@ -77,8 +132,8 @@ namespace Berp.Specs.StepDefinitions
         [Then("the created AST should be")]
         public void ThenTheCreatedASTShouldBe(string expectedAstText)
         {
-            ast.Should().NotBeNull();
-            string astText = ast.ToString();
+            ruleSet.Should().NotBeNull();
+            string astText = ruleSet.ToString();
             TestHelpers.NormalizeText(astText).Should().Be(TestHelpers.NormalizeText(expectedAstText));
         }
 
