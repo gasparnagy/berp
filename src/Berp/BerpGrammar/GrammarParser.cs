@@ -67,7 +67,7 @@ namespace Berp.BerpGrammar
         GroupElement, // GroupElement! := #LParen RuleDefinitionElement+ #RParen
         TokenElement, // TokenElement := #Token
         RuleElement, // RuleElement := #Rule
-        LookAhead, // LookAhead! := #LBracket LookAheadTokenList1? #Arrow LookAheadTokenList2 #RBracket
+        LookAhead, // LookAhead! := #LBracket LookAheadTokenList1? #Arrow LookAheadTokenList2? #RBracket
         LookAheadTokenList1, // LookAheadTokenList1! := #Token (#AlternateOp #Token)*
         LookAheadTokenList2, // LookAheadTokenList2! := #Token (#AlternateOp #Token)*
         Settings, // Settings! := (#LBracket #EOL) Parameter* (#RBracket #EOL)
@@ -901,10 +901,15 @@ namespace Berp.BerpGrammar
                 Build(context, token);
                 return 16;
             }
+            if (Match_RBracket(context, token))
+            {
+                Build(context, token);
+                return 18;
+            }
             
             const string stateComment = "State: 15 - Grammar:1>RuleDefinition:2>LookAhead:2>#Arrow:0";
             token.Detach();
-            var expectedTokens = new string[] {"#Token"};
+            var expectedTokens = new string[] {"#Token", "#RBracket"};
             var error = token.IsEOF ? (ParserException)new UnexpectedEOFException(token, expectedTokens, stateComment) 
                 : new UnexpectedTokenException(token, expectedTokens, stateComment);
             if (StopAtFirstError)

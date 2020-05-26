@@ -21,6 +21,11 @@ namespace Berp
 
         public override void Resolve(RuleSet ruleSet)
         {
+            if (LookAheadHint != null && 
+                LookAheadHint.ExpectedTokens.Length == 0)
+            {
+                LookAheadHint = new LookAheadHint(ruleSet.OfType<TokenRule>().Select(tr => tr.TokenType).ToArray(), new TokenType[0]);
+            }
             foreach (var ruleElement in RuleElements)
             {
                 ruleElement.Resolve(ruleSet);

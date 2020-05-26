@@ -79,7 +79,8 @@ namespace Berp.BerpGrammar
                 case RuleType.LookAhead:
                 {
                     var items = astNode.GetAllSubNodes().Cast<Token[]>().ToArray();
-                    var expected = items.Last().Select(t => new Berp.TokenType(t.Text.Substring(1))).ToArray();
+                    var expected = items.Length == 0 ? new Berp.TokenType[0] :
+                        items.Last().Select(t => new Berp.TokenType(t.Text.Substring(1))).ToArray();
                     var skip = items.Length > 1 ? items[0].Select(t => new Berp.TokenType(t.Text.Substring(1))).ToArray() : new Berp.TokenType[0];
                     return new LookAheadHint(expected, skip);
                 }
