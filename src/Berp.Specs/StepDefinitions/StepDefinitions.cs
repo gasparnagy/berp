@@ -44,9 +44,9 @@ namespace Berp.Specs.StepDefinitions
             stopAtFirstError = true;
         }
 
-        private void ParseWithErrorHandling(Action<Parser> doParsing)
+        private void ParseWithErrorHandling(Action<Parser> doParsing, IAstBuilder<RuleSet> astBuilder = null)
         {
-            var parser = new BerpGrammar.Parser();
+            var parser = astBuilder == null ? new Parser() : new Parser(astBuilder);
             parser.StopAtFirstError = stopAtFirstError;
             try
             {
@@ -74,9 +74,9 @@ namespace Berp.Specs.StepDefinitions
             ParseWithErrorHandling(parser =>
             {
                 ruleSet = parser.Parse(new TokenScanner(new StringReader(sourceContent)),
-                    new TokenMatcher(), new AstBuilderForTest());
+                    new TokenMatcher());
                 testOutputHelper.WriteLine(ruleSet.ToString());
-            });
+            }, new AstBuilderForTest());
         }
 
         [When("the input source is compiled with the BerpGrammarParserForTest parser")]

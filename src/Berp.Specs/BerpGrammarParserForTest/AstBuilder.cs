@@ -6,7 +6,7 @@ using Berp.BerpGrammar;
 
 namespace Berp.Specs.BerpGrammarParserForTest
 {
-    public class AstBuilderForTest : IAstBuilder
+    public class AstBuilderForTest : IAstBuilder<RuleSet>
     {
         private class AstNode : List<object>
         {
@@ -77,6 +77,11 @@ namespace Berp.Specs.BerpGrammarParserForTest
         public RuleSet GetResult()
         {
             return new RuleSetForTest(CurrentNode.First());
-        } 
+        }
+
+        public void Reset()
+        {
+            //nop
+        }
     }
 }

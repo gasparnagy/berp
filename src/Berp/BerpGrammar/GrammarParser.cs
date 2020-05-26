@@ -75,8 +75,20 @@ namespace Berp.BerpGrammar
     }
 
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class Parser
+    public partial class Parser<T>
     {
+        private readonly IAstBuilder<T> astBuilder;
+
+        public Parser()
+            : this(new AstBuilder<T>())
+        {
+        }
+
+        public Parser(IAstBuilder<T> astBuilder)
+        {
+            this.astBuilder = astBuilder;
+        }
+
         public bool StopAtFirstError { get; set;}
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -84,23 +96,23 @@ namespace Berp.BerpGrammar
         {
             public ITokenScanner TokenScanner { get; set; }
             public ITokenMatcher TokenMatcher { get; set; }
-            public IAstBuilder Builder { get; set; }
             public Queue<Token> TokenQueue { get; set; }
             public List<ParserException> Errors { get; set; }
         }
 
-        public Berp.RuleSet Parse(ITokenScanner tokenScanner)
+        public T Parse(ITokenScanner tokenScanner)
         {
-            return Parse(tokenScanner, new TokenMatcher(), new AstBuilder());
+            return Parse(tokenScanner, new TokenMatcher());
         }
 
-        public Berp.RuleSet Parse(ITokenScanner tokenScanner, ITokenMatcher tokenMatcher, IAstBuilder astBuilder)
+        public T Parse(ITokenScanner tokenScanner, ITokenMatcher tokenMatcher)
         {
+            tokenMatcher.Reset();
+            astBuilder.Reset();
             var context = new ParserContext
             {
                 TokenScanner = tokenScanner,
                 TokenMatcher = tokenMatcher,
-                Builder = astBuilder,
                 TokenQueue = new Queue<Token>(),
                 Errors = new List<ParserException>()
             };
@@ -161,22 +173,22 @@ namespace Berp.BerpGrammar
 
         void Build(ParserContext context, Token token)
         {
-            HandleAstError(context, () => context.Builder.Build(token));
+            HandleAstError(context, () => this.astBuilder.Build(token));
         }
 
         void StartRule(ParserContext context, RuleType ruleType)
         {
-            HandleAstError(context, () => context.Builder.StartRule(ruleType));
+            HandleAstError(context, () => this.astBuilder.StartRule(ruleType));
         }
 
         void EndRule(ParserContext context, RuleType ruleType)
         {
-            HandleAstError(context, () => context.Builder.EndRule(ruleType));
+            HandleAstError(context, () => this.astBuilder.EndRule(ruleType));
         }
 
-        Berp.RuleSet GetResult(ParserContext context)
+        T GetResult(ParserContext context)
         {
-            return context.Builder.GetResult();
+            return this.astBuilder.GetResult();
         }
 
         Token ReadToken(ParserContext context)
@@ -2615,12 +2627,13 @@ namespace Berp.BerpGrammar
         
     }
 
-    public partial interface IAstBuilder 
+    public partial interface IAstBuilder<T> 
     {
         void Build(Token token);
         void StartRule(RuleType ruleType);
         void EndRule(RuleType ruleType);
-        Berp.RuleSet GetResult();
+        T GetResult();
+        void Reset();
     }
 
     public partial interface ITokenScanner 
@@ -2648,11 +2661,13 @@ namespace Berp.BerpGrammar
         bool Match_Comma(Token token);
         bool Match_Number(Token token);
         bool Match_Other(Token token);
+        void Reset();
     }
 
 
     public partial class SimpleTokenMatcher : ITokenMatcher
     {
+        public virtual void Reset() { }
 
         public virtual bool Match_EOF(Token token) => token.TokenType == TokenType.EOF;
         public virtual bool Match_Rule(Token token) => token.TokenType == TokenType.Rule;
