@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using RazorEngine;
 using Encoding = System.Text.Encoding;
 
 namespace Berp
@@ -54,7 +53,7 @@ namespace Berp
                 RuleSet = ruleSet
             };
 
-            string result = Razor.Parse(template, model);
+            string result = RazorProcessor.RazorParse(template, model);
             if (File.Exists(outputPath) && File.ReadAllText(outputPath).Equals(result))
             {
                 Console.WriteLine("Parser class up-to-date.");

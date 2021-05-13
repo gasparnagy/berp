@@ -169,7 +169,7 @@ namespace Berp
             {
                 if (branchGroup.Count(b => b.LookAheadHint == null) > 1)
                 {
-                    throw new ParserGeneratorException("Ambiguous rules. Provide more look-ahead hints. Branches: {0}{1}", Environment.NewLine, string.Join(Environment.NewLine, branchGroup.Where(b => b.LookAheadHint == null)));
+                    throw new ParserGeneratorException($"Ambiguous rules. Provide more look-ahead hints. Branches: {Environment.NewLine}{string.Join(Environment.NewLine, branchGroup.Where(b => b.LookAheadHint == null))}");
                 }
 
                 foreach (var branch in branchGroup.OrderBy(b => b.LookAheadHint == null))
