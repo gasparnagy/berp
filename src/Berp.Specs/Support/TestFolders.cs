@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace Berp.Specs.Support
@@ -10,10 +9,8 @@ namespace Berp.Specs.Support
     {
         public static readonly string UniqueId = DateTime.Now.ToString("s", CultureInfo.InvariantCulture).Replace(":", "");
 
-        public static string InputFolder
-        {
-            get { return Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath); }
-        }
+        public static string InputFolder => 
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         public static string OutputFolder
         {
