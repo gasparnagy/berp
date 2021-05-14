@@ -3,49 +3,36 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <Company>Spec Solutions</Company>
     <Copyright>Copyright (C) 2014-2020, Gaspar Nagy (Spec Solutions)</Copyright>
 
+    <Company>Spec Solutions</Company>
+    <Product>BERP Parser Generator</Product>
+    <Authors>Spec Solutions</Authors>
+    <Copyright>Copyright (C) 2016-2021 Gaspar Nagy (Spec Solutions)</Copyright>
+
+    <PackageProjectUrl>https://github.com/gasparnagy/berp</PackageProjectUrl>
+    <PackageTags>parser parser-generator gherkin</PackageTags>
+    <Description>Parser Generator for C#, Java, JavaScript, Ruby, Go, Python using a unified grammar</Description>
+    <RepositoryUrl>https://github.com/gasparnagy/berp</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <NuspecFile>$(MSBuildThisFileDirectory)Berp.nuspec</NuspecFile>
-    <NuspecProperties>version=$(PackageVersion)</NuspecProperties>
-
-    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <PackageId>Berp</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>berp</ToolCommandName>
+    <PackageOutputPath>bin/$(Configuration)/NuGet</PackageOutputPath>
+    <LangVersion>latest</LangVersion>
+    <Deterministic Condition="'$(Configuration)' == 'Release'">false</Deterministic>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="GeneratorTemplates\CSharp.razor" />
-    <None Remove="GeneratorTemplates\Go.razor" />
-    <None Remove="GeneratorTemplates\Java.razor" />
-    <None Remove="GeneratorTemplates\Python.razor" />
-    <None Remove="GeneratorTemplates\Ruby.razor" />
-    <None Remove="GeneratorTemplates\TypeScript.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="GeneratorTemplates\CSharp.razor">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GeneratorTemplates\Go.razor">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GeneratorTemplates\Java.razor">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GeneratorTemplates\Python.razor">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GeneratorTemplates\Ruby.razor">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GeneratorTemplates\TypeScript.razor">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="RazorEngineCore" Version="2021.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="GeneratorTemplates\*.razor">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

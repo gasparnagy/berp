@@ -11,7 +11,7 @@ cd src
 dotnet build -c "%CONFIG_VAL%" -p:PackageVersion=%PRODVER% -p:Version=%PRODVER%
 IF ERRORLEVEL 1 GOTO error
 
-copy /Y Berp\bin\%CONFIG_VAL%\Berp.%PRODVER%.nupkg %NUGET_LOCAL_FEED%\Berp.%PRODVER%.nupkg
+copy /Y Berp\bin\%CONFIG_VAL%\NuGet\Berp.%PRODVER%.nupkg %NUGET_LOCAL_FEED%\Berp.%PRODVER%.nupkg
 IF ERRORLEVEL 1 GOTO error
 
 @popd
