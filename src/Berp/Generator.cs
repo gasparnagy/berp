@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Encoding = System.Text.Encoding;
 
 namespace Berp
@@ -38,7 +39,7 @@ namespace Berp
             this.settings = settings;
         }
 
-        public void Generate(string templatePath, RuleSet ruleSet, Dictionary<int, State> states, string outputPath)
+        public void Generate(string templatePath, RuleSet ruleSet, Dictionary<int, State> states, string outputPath, bool noBom = false)
         {
             string template = File.ReadAllText(templatePath);
 
@@ -59,7 +60,8 @@ namespace Berp
                 Console.WriteLine("Parser class up-to-date.");
                 return;
             }
-            File.WriteAllText(outputPath, result, Encoding.UTF8);
+            var encoding = noBom ? new UTF8Encoding(false) : Encoding.UTF8;
+            File.WriteAllText(outputPath, result, encoding);
             Console.WriteLine("Parser class generated to '{0}'.", outputPath);
         }
     }

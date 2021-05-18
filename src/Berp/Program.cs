@@ -22,6 +22,8 @@ namespace Berp
         public bool DiagnosticsMode { get; set; }
         [Option("settings", Required = false, HelpText = "Extends/overrides settings in grammar file, use 'key1=value1,key2=value2,key3=!file-path-to-load-setting-from' format")]
         public string SettingsOverride { get; set; }
+        [Option("noBOM", Required = false, HelpText = "Does not include UTF-8 BOM in the generated file")]
+        public bool NoBom { get; set; }
 
         public HelpText GetHeader()
         {
@@ -129,7 +131,7 @@ namespace Berp
 
             Console.WriteLine("Generating parser class...");
             var generator = new Generator(ruleSet.Settings);
-            generator.Generate(options.Template, ruleSet, states, options.OutputFile);
+            generator.Generate(options.Template, ruleSet, states, options.OutputFile, options.NoBom);
         }
         private static void PrintStateTransitions(State state)
         {
