@@ -4,6 +4,7 @@ using Berp.BerpGrammar;
 using Berp.Specs.Support;
 using FluentAssertions;
 using TechTalk.SpecFlow;
+using Xunit.Abstractions;
 
 namespace Berp.Specs.StepDefinitions
 {
@@ -13,6 +14,12 @@ namespace Berp.Specs.StepDefinitions
         private string grammarDefinition;
         private string outputFile;
         private Exception generationError;
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public GenerationStepDefinitions(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
 
         [Given("there is a complex grammar")]
         public void GivenThereIsAComplexGrammar()
@@ -33,6 +40,7 @@ namespace Berp.Specs.StepDefinitions
                 var generator = new Generator(ruleSet.Settings);
                 outputFile = TestFolders.GetTempFilePath("output.txt");
                 generator.Generate(Path.Combine("GeneratorTemplates", templateName), ruleSet, states, outputFile);
+                _testOutputHelper.WriteLine($"Result saved to: {outputFile}");
             }
             catch (Exception ex)
             {
