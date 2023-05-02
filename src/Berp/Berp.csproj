@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Copyright>Copyright (C) 2014-2020, Gaspar Nagy (Spec Solutions)</Copyright>
 
     <Company>Spec Solutions</Company>
