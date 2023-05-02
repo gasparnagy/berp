@@ -77,6 +77,11 @@ namespace Berp
                 }
             });
 
+            if (commandLineParseResult is NotParsed<Options> notParsed && notParsed.Errors.All(e => e.Tag == ErrorType.VersionRequestedError))
+            {
+                result = 0;
+            }
+
             return result;
         }
 
