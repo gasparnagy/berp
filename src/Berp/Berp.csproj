@@ -2,13 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <Copyright>Copyright (C) 2014-2020, Gaspar Nagy (Spec Solutions)</Copyright>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
 
     <Company>Spec Solutions</Company>
     <Product>BERP Parser Generator</Product>
     <Authors>Spec Solutions</Authors>
-    <Copyright>Copyright (C) 2016-2021 Gaspar Nagy (Spec Solutions)</Copyright>
+    <Copyright>Copyright (C) 2016-2023 Gaspar Nagy (Spec Solutions)</Copyright>
 
     <PackageProjectUrl>https://github.com/gasparnagy/berp</PackageProjectUrl>
     <PackageTags>parser parser-generator gherkin</PackageTags>
