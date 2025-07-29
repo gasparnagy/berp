@@ -1,87 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Berp.BerpGrammar;
 
-namespace Berp.Specs.BerpGrammarParserForTest
+namespace Berp.Specs.BerpGrammarParserForTest;
+
+public class AstBuilderForTest : IAstBuilder<RuleSet>
 {
-    public class AstBuilderForTest : IAstBuilder<RuleSet>
+    private class AstNode(RuleType ruleType) : List<object>
     {
-        private class AstNode : List<object>
+        public override string ToString()
         {
-            private RuleType ruleType;
-
-            public AstNode(RuleType ruleType)
-            {
-                this.ruleType = ruleType;
-            }
-
-            public override string ToString()
-            {
-                return InternalToString("");
-            }
-
-            private string InternalToString(string indent)
-            {
-                var subIndent = indent + "\t";
-                var result = new StringBuilder();
-                result.AppendLine(indent + "[" + ruleType);
-                foreach(var subItem in this)
-                    result.AppendLine(subItem is AstNode ? ((AstNode)subItem).InternalToString(subIndent) : (subIndent + subItem.ToString()));
-                result.Append(indent + "]");
-                return result.ToString();
-            }
+            return InternalToString("");
         }
 
-        private readonly Stack<AstNode> stack = new Stack<AstNode>();
-        private AstNode CurrentNode { get { return stack.Peek(); } }
-
-        public AstBuilderForTest()
+        private string InternalToString(string indent)
         {
-            stack.Push(new AstNode(RuleType.None));
+            var subIndent = indent + "\t";
+            var result = new StringBuilder();
+            result.AppendLine(indent + "[" + ruleType);
+            foreach(var subItem in this)
+                result.AppendLine(subItem is AstNode astNode ? astNode.InternalToString(subIndent) : subIndent + subItem);
+            result.Append(indent + "]");
+            return result.ToString();
         }
+    }
 
-        public void Build(Token token)
+    private readonly Stack<AstNode> stack = new();
+    private AstNode CurrentNode => stack.Peek();
+
+    public AstBuilderForTest()
+    {
+        stack.Push(new AstNode(RuleType.None));
+    }
+
+    public void Build(Token token)
+    {
+        CurrentNode.Add(token);
+    }
+
+    public void StartRule(RuleType ruleType)
+    {
+        stack.Push(new AstNode(ruleType));
+    }
+
+    public void EndRule(RuleType ruleType)
+    {
+        var node = stack.Pop();
+        CurrentNode.Add(node);
+    }
+
+    class RuleSetForTest(object node) : RuleSet((ParserGeneratorSettings)null)
+    {
+        public override string ToString()
         {
-            CurrentNode.Add(token);
+            return node.ToString();
         }
+    }
 
-        public void StartRule(RuleType ruleType)
-        {
-            stack.Push(new AstNode(ruleType));
-        }
+    public RuleSet GetResult()
+    {
+        return new RuleSetForTest(CurrentNode.First());
+    }
 
-        public void EndRule(RuleType ruleType)
-        {
-            var node = stack.Pop();
-            CurrentNode.Add(node);
-        }
-
-        class RuleSetForTest : RuleSet
-        {
-            private readonly object node;
-
-            public RuleSetForTest(object node)
-                : base((ParserGeneratorSettings)null)
-            {
-                this.node = node;
-            }
-
-            public override string ToString()
-            {
-                return node.ToString();
-            }
-        }
-
-        public RuleSet GetResult()
-        {
-            return new RuleSetForTest(CurrentNode.First());
-        }
-
-        public void Reset()
-        {
-            //nop
-        }
+    public void Reset()
+    {
+        //nop
     }
 }

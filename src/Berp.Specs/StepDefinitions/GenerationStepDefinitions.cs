@@ -1,58 +1,50 @@
 using System;
 using System.IO;
-using Berp.BerpGrammar;
 using Berp.Specs.Support;
-using FluentAssertions;
-using TechTalk.SpecFlow;
+using AwesomeAssertions;
+using Reqnroll;
 using Xunit.Abstractions;
 
-namespace Berp.Specs.StepDefinitions
+namespace Berp.Specs.StepDefinitions;
+
+[Binding]
+public class GenerationStepDefinitions(ITestOutputHelper testOutputHelper)
 {
-    [Binding]
-    public class GenerationStepDefinitions
+    private string grammarDefinition;
+    private string outputFile;
+    private Exception generationError;
+
+    [Given("there is a complex grammar")]
+    public void GivenThereIsAComplexGrammar()
     {
-        private string grammarDefinition;
-        private string outputFile;
-        private Exception generationError;
-        private readonly ITestOutputHelper _testOutputHelper;
+        var fullPath = TestFolders.GetInputFilePath(@"BerpGrammarParserForTest\BerpGrammar.berp");
+        grammarDefinition = File.ReadAllText(fullPath);
+    }
 
-        public GenerationStepDefinitions(ITestOutputHelper testOutputHelper)
+    [When("the parser generation is performed using {string}")]
+    public void WhenTheParserGenerationIsPerformedUsing(string templateName)
+    {
+        var parser = new BerpGrammar.Parser();
+        var ruleSet = parser.Parse(new BerpGrammar.TokenScanner(new StringReader(grammarDefinition)));
+        var states = StateCalculator.CalculateStates(ruleSet);
+
+        try
         {
-            _testOutputHelper = testOutputHelper;
+            var generator = new Generator(ruleSet.Settings);
+            outputFile = TestFolders.GetTempFilePath("output.txt");
+            generator.Generate(Path.Combine("GeneratorTemplates", templateName), ruleSet, states, outputFile);
+            testOutputHelper.WriteLine($"Result saved to: {outputFile}");
         }
-
-        [Given("there is a complex grammar")]
-        public void GivenThereIsAComplexGrammar()
+        catch (Exception ex)
         {
-            var fullPath = TestFolders.GetInputFilePath(@"BerpGrammarParserForTest\BerpGrammar.berp");
-            grammarDefinition = File.ReadAllText(fullPath);
+            generationError = ex;
         }
+    }
 
-        [When("the parser generation is performed using {string}")]
-        public void WhenTheParserGenerationIsPerformedUsing(string templateName)
-        {
-            var parser = new BerpGrammar.Parser();
-            var ruleSet = parser.Parse(new TokenScanner(new StringReader(grammarDefinition)));
-            var states = StateCalculator.CalculateStates(ruleSet);
-
-            try
-            {
-                var generator = new Generator(ruleSet.Settings);
-                outputFile = TestFolders.GetTempFilePath("output.txt");
-                generator.Generate(Path.Combine("GeneratorTemplates", templateName), ruleSet, states, outputFile);
-                _testOutputHelper.WriteLine($"Result saved to: {outputFile}");
-            }
-            catch (Exception ex)
-            {
-                generationError = ex;
-            }
-        }
-
-        [Then("then the generation should be successful")]
-        public void ThenThenTheGenerationShouldBeSuccessful()
-        {
-            generationError.Should().BeNull();
-            File.Exists(outputFile).Should().BeTrue();
-        }
+    [Then("then the generation should be successful")]
+    public void ThenThenTheGenerationShouldBeSuccessful()
+    {
+        generationError.Should().BeNull();
+        File.Exists(outputFile).Should().BeTrue();
     }
 }
